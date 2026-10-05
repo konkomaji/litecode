@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# litecode launcher for Linux/macOS. Put this bin folder on your PATH.
+exec python3 -m litecode.cli "$@"

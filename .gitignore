@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Models, engines, downloads (never commit multi-GB binaries)
+*.gguf
+*.gguf.part
+models/
+engines/
+
+# Local runtime + project memory
+.litecode/
+~/.litecode/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Research and scratch (kept out of the tool repo on purpose)
+research/
+scratch/
+*.log
