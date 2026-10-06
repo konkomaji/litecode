@@ -1,6 +1,6 @@
 """Config: defaults + ~/.litecode/config.toml overrides + installed-model registry."""
 from __future__ import annotations
-import os
+import copy, os
 from pathlib import Path
 
 try:
@@ -39,12 +39,15 @@ except ModuleNotFoundError:
         return out
 
 HOME = Path(os.path.expanduser("~")) / ".litecode"
-MODELS_DIR = Path(os.environ.get("LITECODE_MODELS", "D:/llm/models"))
-ENGINE = Path(os.environ.get("LITECODE_ENGINE", "D:/llm/engines/llamacpp-cpu/llama-server.exe"))
+_EXE = ".exe" if os.name == "nt" else ""
+MODELS_DIR = Path(os.environ.get("LITECODE_MODELS", str(HOME / "models")))
+ENGINE = Path(os.environ.get("LITECODE_ENGINE", str(HOME / "engine" / f"llama-server{_EXE}")))
 
 # Model roles, resolved to files in MODELS_DIR. Chosen from Phase-0 on-device tests.
 DEFAULTS = {
     "engine": str(ENGINE),
+    "data_dir": str(HOME),      # cache, KV slots, scratchpad, global memory, skills (user picks in setup)
+    "project_memory": "project",  # project = <project>/.litecode ; central = <data_dir>/projects/<id>
     "models_dir": str(MODELS_DIR),
     "host": "127.0.0.1",
     "port": 8080,
@@ -53,6 +56,13 @@ DEFAULTS = {
     "kv_type": "q8_0",          # halves KV RAM, ~no quality loss
     "cache_ram_mb": 1024,       # llama.cpp default 8192 is too big for 16 GB
     "keep_resident": True,      # do not idle-unload (avoids HDD reload lag)
+    "fim_port": 8081,           # separate resident autocomplete server
+    "gpu_layers": 0,            # >0 offloads layers (Vulkan/CUDA engine builds only)
+    "speculative": "auto",      # auto | off | ngram-simple | ngram-mod | draft
+    "kv_persist": True,         # save/restore the prompt KV cache per project
+    "permission": "ask",        # ask | auto | readonly
+    "auto_learn": True,         # extract project facts at session end (one short model call)
+    "lora": "",                 # optional LoRA adapter (.gguf) trained from `litecode learn export`
     "roles": {
         # role -> gguf filename (relative to models_dir)
         "code":   "MiniCPM5-2B-Q4_K_M.gguf",             # coding leader on-device
@@ -67,7 +77,7 @@ DEFAULTS = {
 
 
 def load() -> dict:
-    cfg = {**DEFAULTS}
+    cfg = copy.deepcopy(DEFAULTS)
     p = HOME / "config.toml"
     if p.exists():
         try:
@@ -93,3 +103,37 @@ def model_path(cfg: dict, role: str) -> Path | None:
 def available_roles(cfg: dict) -> dict:
     """roles whose model file actually exists on disk right now."""
     return {r: model_path(cfg, r) for r in cfg["roles"] if model_path(cfg, r)}
+
+
+def save(updates: dict) -> Path:
+    """Merge `updates` into ~/.litecode/config.toml (flat keys and [roles])."""
+    p = HOME / "config.toml"
+    cur = _parse_toml(p.read_text(encoding="utf-8")) if p.exists() else {}
+    for k, v in updates.items():
+        if isinstance(v, dict):
+            cur.setdefault(k, {}).update(v)
+        else:
+            cur[k] = v
+
+    def fmt(v):
+        if isinstance(v, bool):
+            return "true" if v else "false"
+        if isinstance(v, (int, float)):
+            return str(v)
+        return '"' + str(v).replace("\\", "/") + '"'
+
+    lines = ["# litecode config"]
+    lines += [f"{k} = {fmt(v)}" for k, v in cur.items() if not isinstance(v, dict)]
+    for k, v in cur.items():
+        if isinstance(v, dict):
+            lines += ["", f"[{k}]"] + [f"{kk} = {fmt(vv)}" for kk, vv in v.items()]
+    HOME.mkdir(parents=True, exist_ok=True)
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return p
+
+
+def data_path(cfg: dict, *parts: str) -> Path:
+    """A folder under the user-selected data_dir (created on demand)."""
+    p = Path(cfg.get("data_dir") or HOME).joinpath(*parts)
+    p.mkdir(parents=True, exist_ok=True)
+    return p

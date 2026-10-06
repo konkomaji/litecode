@@ -7,47 +7,37 @@ command-line coding assistant, running on open-weight models and tuned to the ma
 
 - Hardware detection: CPU, cores, SIMD, RAM, disks (SSD or HDD) with free space, GPU, Vulkan.
 - Adaptive model selection that scales from a 4GB laptop to a 32GB or GPU machine.
-- Setup wizard: detect, recommend, ask permission, download with resume, write config.
-- Resident local model server with low-RAM defaults (quantized KV cache, small prompt cache, no idle unload).
+- Setup wizard, resident local model server with low-RAM defaults.
 - Agent loop with a strict one-action protocol that small models can follow.
-- Tools: list_dir, read_file, grep, write_file, run (bash or powershell), sandboxed to the project with approvals.
-- Task router: sends security work to the security model, hard tasks to the quality model.
-- Project memory: a LITECODE.md brief and a per-project history log.
-- Launch from anywhere with the `litecode` command.
+- Task router, project brief, launch from anywhere.
 
-## Planned (feature parity with mainstream coding agents)
+## Done (v0.2)
 
-### Editing and tools
-- Precise multi-file edits with unified diffs and a review step before applying.
-- Fill-in-the-middle autocomplete server with cursor-aware prompt caching.
-- glob and semantic code search, tree-sitter symbol and call-graph retrieval.
-- Static analysis first for code and security, so the model explains findings instead of hunting for them.
-- Run tests and read results back, with an automatic fix loop.
+- Interface: banner, colors, live streaming of the final answer, diff preview on edits, status line, "always allow" per session.
+- Tools: glob, line-range reads, exact-replace edits, git status/diff, static scan, remember.
+- Permission modes: ask, auto, read-only. Plan mode. Undo with stacked checkpoints.
+- Slash commands: /plan /review /scan /test /diff /commit /model /mode /remember /prefer /memory /forget /good /bad /undo /sessions /resume /clear /init /skills /skill /mcp /config /cost.
+- Context: @file mentions, history compaction with full archive, alternating-role message building.
+- Memory and learning: automatic session capture, global preference profile, project facts (model extraction at session end, test commands at once), example retrieval with ratings, fine-tune dataset export, LoRA adapter loading.
+- Skills: SKILL.md format, built-in/user/project scopes, trigger matching, step-by-step builder, model-drafted skills.
+- MCP: stdio client, Claude Code compatible config, tools exposed as mcp__server__tool.
+- Static analysis first: built-in rules, Semgrep/Bandit when installed, grammar-constrained verdicts.
+- Test-fix loop.
+- Performance: one slot, KV cache save/restore per project, n-gram speculative decoding with automatic fallback, `litecode tune` (threads + speculative mode by measurement, shareable report).
+- Setup: user-selected data and model folders, automatic llama.cpp engine download, portable defaults.
+- Editor: FIM server and a VS Code extension.
+- ASD-STE100 answer rules in an editable SYSTEM.md.
+- Docs and a stdlib unittest suite.
 
-### Workflow
-- Slash commands (/init, /review, /test, /undo, /model, /cost, /clear).
-- Plan mode: propose a step list, get approval, then execute.
-- Undo and checkpoints for file changes.
-- Permission modes: ask, auto-approve, and read-only.
+## Next
 
-### Context and memory
-- Prompt and KV snapshot cache per project, saved to disk, so repeated context is not reprocessed.
-- History compaction and summaries to stay inside a small RAM budget.
-- @file and @folder mentions to pull context on demand.
-
-### Models and performance
-- Speculative decoding chosen automatically by measured acceptance (n-gram, draft model, or model MTP head).
-- Optional integrated GPU use for prompt processing where available.
-- A local benchmark on install that tunes threads, batch size, and defaults to the machine.
-- Per-task model routing with a small classifier when rules are not enough.
-
-### Integration
-- Editor integration (VS Code) talking to the same local server.
-- Optional MCP tool support for extra capabilities.
-- Git awareness: read diffs, stage changes, write commit messages.
-
-### Reach
-- Verified model packs per hardware tier, with community-reported benchmarks.
-- One-command install for Windows, Linux, and macOS.
+- MCP over HTTP/SSE, MCP resources and prompts.
+- tree-sitter symbol and call-graph retrieval; embeddings for semantic search.
+- Unified diff edits across several files with one review step.
+- Draft-model speculative decoding chosen by `tune` when a matching small model is installed.
+- Integrated GPU (Vulkan) prompt processing chosen by `tune`.
+- Verified model packs per hardware tier from community `tune` reports.
+- Shared "verified fixes" packs: fixes that passed tests, exported and signed, for offline sharing between students.
+- Small classifier for routing when rules are not enough.
 
 Built by Konko Maji.

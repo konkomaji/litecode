@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "litecode"
-version = "0.1.0"
+version = "0.2.0"
 description = "Run open-weight LLMs on any machine, from a 4GB laptop to a GPU workstation. Auto-detects hardware, picks models that fit, works fully offline."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Konko Maji" }]
 keywords = ["local-llm", "llama-cpp", "coding-agent", "offline-ai", "cpu-inference",
@@ -31,3 +31,6 @@ lite = "litecode.cli:main"
 
 [tool.setuptools]
 packages = ["litecode"]
+
+[tool.setuptools.package-data]
+litecode = ["SYSTEM.md", "skills/*.md"]

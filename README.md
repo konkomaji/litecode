@@ -41,33 +41,52 @@ litecode uses llama.cpp as the local inference engine. The value it adds is the 
 
 ## Install
 
-Requires Python 3.11 or newer.
+Requires Python 3.10 or newer. No other dependencies.
+
+Windows (PowerShell):
 
 ```
 git clone https://github.com/konkomaji/litecode
 cd litecode
-pip install -e .
+.\install.ps1
 ```
 
-Then run the setup wizard:
+Linux or macOS:
 
 ```
-litecode setup
+git clone https://github.com/konkomaji/litecode
+cd litecode
+./install.sh
 ```
 
-The wizard detects your machine, recommends models, asks permission, and downloads everything. To run from any folder, add the `bin` directory to your PATH, or use the installed `litecode` command.
+The installer runs `litecode setup`. The wizard detects your machine, asks where to keep data and models, downloads the llama.cpp engine and the models that fit (after asking), and writes your config. Then run `litecode tune` once to tune speed for your PC.
 
 ## Quickstart
 
 ```
-litecode doctor           # show detected hardware and recommended models
-litecode setup            # choose and download models
+litecode doctor           # hardware, engine, models
 litecode init             # create a LITECODE.md brief for the current project
 litecode "add a CLI flag --json to main.py and update the tests"
-litecode                  # start an interactive session in the current folder
+litecode                  # interactive session in the current folder
+litecode review src/      # static scan + model verdict for each finding
 ```
 
-Use `--yes` to auto-approve file writes and commands. Use `--role security` to force the security model.
+Inside a session: `/help` lists commands. `@file` attaches a file. `/plan`, `/test`, `/review`, `/commit`, `/undo`, `/memory`, `/skills`, `/mcp`, `/cost`.
+
+## Features
+
+- Agent with tools: read, glob, grep, edit (exact replace with diff preview), write, run, git status/diff, static scan, remember. Permission modes: ask, auto, read-only.
+- Automatic memory: every session is saved to disk. Preferences ("always use type hints") apply to all projects. Project facts and passing test commands are saved. Past tasks are reused as examples, rated with `/good` and `/bad`.
+- Learning loop: `litecode learn export` writes a fine-tune dataset. A LoRA adapter trained elsewhere loads with one config line.
+- Skills like Claude Code: `SKILL.md` files with steps, project/user/built-in scopes, run with `/name`, auto-match by trigger words, build with `/skill new` or let the model draft one with `/skill make`.
+- MCP client: stdio MCP servers, same `.mcp.json` format as Claude Code.
+- Security: built-in rules plus Semgrep/Bandit when installed. `/review` gives a forced 4-line verdict per finding (grammar-constrained, so small models stay on format).
+- Speed for weak PCs: one server slot, quantized KV cache, prompt cache saved per project, n-gram speculative decoding, `litecode tune` picks threads and decoding mode by measurement.
+- Clear answers: the system prompt uses ASD-STE100 Simplified Technical English rules. Answer first, short sentences, exact values, no filler. Edit `SYSTEM.md` to change it.
+- Editor autocomplete: `litecode fim` plus a dependency-free VS Code extension in `editors/vscode`.
+- You choose where data lives: cache, KV slots, scratchpad, memory and skills go to the folder you pick in setup.
+
+Docs: [GUIDE](docs/GUIDE.md), [COMMANDS](docs/COMMANDS.md), [MEMORY](docs/MEMORY.md), [SKILLS](docs/SKILLS.md), [MCP](docs/MCP.md), [EDITORS](docs/EDITORS.md), [TROUBLESHOOTING](docs/TROUBLESHOOTING.md).
 
 ## Models
 

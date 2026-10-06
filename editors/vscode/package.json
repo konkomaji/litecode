@@ -1,0 +1,23 @@
+{
+  "name": "litecode-complete",
+  "displayName": "litecode autocomplete",
+  "description": "Local fill-in-the-middle autocomplete from a litecode fim server. Built by Konko Maji.",
+  "version": "0.2.0",
+  "publisher": "konkomaji",
+  "license": "MIT",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages", "Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "litecode",
+      "properties": {
+        "litecode.url": { "type": "string", "default": "http://127.0.0.1:8081", "description": "litecode fim server URL (start it with: litecode fim)" },
+        "litecode.maxTokens": { "type": "number", "default": 48, "description": "Max tokens per suggestion" },
+        "litecode.debounceMs": { "type": "number", "default": 350, "description": "Wait this long after typing stops" },
+        "litecode.enabled": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}
