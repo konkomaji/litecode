@@ -94,9 +94,9 @@ litecode ships a curated catalog and selects from it based on your hardware. The
 |------|---------------|------|------------------|
 | code and chat | MiniCPM5-2B | 1.6 GB | 8/8 coding tasks, 10/10 vulnerability classes identified, about 14 tokens/sec |
 | autocomplete | Qwen2.5-Coder-1.5B | 1.1 GB | about 20 tokens/sec, stays resident |
-| security (authorized) | Foundation-Sec-8B or WhiteRabbitNeo-V3-7B | about 4.9 GB | official security models, loaded on demand |
+| security (authorized) | Foundation-Sec-8B or WhiteRabbitNeo-V3-7B | about 4.9 GB | WhiteRabbitNeo: 10/10 vulnerability classes, about 5 tokens/sec, loaded on demand |
 | general chat | Llama-3.2-3B | 2.0 GB | 10/10 vulnerability classes, broad knowledge |
-| quality tier | Qwen3.5-9B | 5.7 GB | highest quality that fits 16GB, slower |
+| quality tier | Qwen3.5-9B | 5.7 GB | not measured yet |
 
 On a 32GB machine or one with a capable GPU, litecode can select a larger mixture-of-experts model such as Qwen3.6-35B-A3B for stronger coding and reasoning.
 

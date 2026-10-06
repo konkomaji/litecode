@@ -28,6 +28,12 @@ def main():
                    "coding": r["coding"], "security": r["security"], "tools": r["tools"]}
             if not row["tg"] and name in speed:
                 continue          # keep an earlier row that has speed numbers
+            scores = ("coding", "security", "tools")
+            if all(row[k].startswith("?") for k in scores):
+                continue          # no measured scores: leave the model out
+            for k in scores:
+                if row[k].startswith("?"):
+                    row[k] = "not run"
             speed[name] = row
     evals = {}
     if evals_p.exists():
@@ -49,7 +55,10 @@ def main():
         "speed": sorted(speed.values(), key=lambda r: -float(r["tg"] or 0)),
         "evals": [{k: v for k, v in e.items() if k != "results"} | {"results": e.get("results", [])}
                   for e in evals.values()],
-        "notes": old.get("notes", []),
+        "notes": old.get("notes") or [
+            "Only completed runs are shown. A model without measured scores is left out.",
+            "\"not run\" means the test did not finish for that model, so no score is given.",
+        ],
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, indent=1), encoding="utf-8")

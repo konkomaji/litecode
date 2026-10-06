@@ -36,7 +36,7 @@
    "pp": "50.35",
    "tg": "13.20",
    "coding": "8/8",
-   "security": "?/10",
+   "security": "not run",
    "tools": "1/5"
   },
   {
@@ -64,14 +64,25 @@
    "tools": "3/5"
   },
   {
-   "model": "Qwen3.5-9B",
-   "pp": "11.99",
-   "tg": "4.06",
-   "coding": "?/8",
-   "security": "?/10",
-   "tools": "?/5"
+   "model": "WhiteRabbitNeo-V3-7B",
+   "pp": "15.89",
+   "tg": "5.17",
+   "coding": "5/8",
+   "security": "10/10",
+   "tools": "3/5"
+  },
+  {
+   "model": "Ministral-8B",
+   "pp": "14.69",
+   "tg": "5.00",
+   "coding": "4/8",
+   "security": "10/10",
+   "tools": "4/5"
   }
  ],
  "evals": [],
- "notes": []
+ "notes": [
+  "Only completed runs are shown. A model without measured scores is left out.",
+  "\"not run\" means the test did not finish for that model, so no score is given."
+ ]
 }
