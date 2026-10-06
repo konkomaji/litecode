@@ -9,7 +9,7 @@ from __future__ import annotations
 import json, re, time
 from pathlib import Path
 from . import config, learn
-from .tools import Tools, SPEC
+from .tools import Tools, SPEC, action_schema
 from .memory import Memory, ContextBuilder
 
 SYSTEM_FILE = Path(__file__).parent / "SYSTEM.md"
@@ -32,8 +32,27 @@ def load_system(cfg: dict) -> str:
     return p.read_text(encoding="utf-8")
 
 
+CHAT_HEAD = ("You are litecode, a local AI assistant for coding and security. You run on the user's own PC, "
+             "offline. Answer in plain text; markdown and code blocks are allowed. In this mode you do not "
+             "see the user's files. If the user wants files read, created or changed, answer the question and "
+             "say they can ask for it directly, for example: \"create calc.py\" or \"fix the bug in app.py\".")
+
+
+def chat_system(cfg: dict, prefs: list[str]) -> str:
+    """Short system prompt for direct chat: the answer-style rules from SYSTEM.md, no tool spec.
+    A few hundred tokens instead of a few thousand, so a reply starts in seconds on a slow CPU."""
+    text = load_system(cfg)
+    i = text.find("Answer style")
+    style = text[i:].replace(' for the "final" message', "") if i >= 0 else ""
+    out = CHAT_HEAD + "\n\n" + style
+    if prefs:
+        out += "\n\nUser preferences:\n" + "\n".join(f"- {p}" for p in prefs[:12])
+    return out
+
+
 def _parse_action(text: str) -> dict | None:
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+    text = re.sub(r"</?(param|parameter|tool_call|function|arguments)[^>]*>", "", text)
     m = JSON_RE.search(text)
     if not m:
         return None
@@ -127,10 +146,57 @@ class Agent:
         active = [skill] if skill else (self.skills.match(task) if self.skills else [])
         return "\n\n".join(s.prompt() for s in active if s)
 
+    def _history(self, n=8, chars=1500) -> list[dict]:
+        """Recent plain user/assistant turns of this session (tool steps left out)."""
+        out = []
+        for t in self.mem.turns(self.session):
+            c = str(t.get("content", ""))
+            if t.get("role") == "user" and not c.startswith("OBSERVATION"):
+                out.append({"role": "user", "content": c[:chars]})
+            elif t.get("role") == "assistant" and not c.lstrip().startswith("{"):
+                out.append({"role": "assistant", "content": c[:chars]})
+        out = out[-n:]
+        while out and out[0]["role"] != "user":
+            out.pop(0)
+        merged = []
+        for m in out:        # keep roles alternating for strict chat templates
+            if merged and merged[-1]["role"] == m["role"]:
+                merged[-1] = {"role": m["role"], "content": merged[-1]["content"] + "\n\n" + m["content"]}
+            else:
+                merged.append(m)
+        if merged and merged[-1]["role"] == "user":
+            merged.pop()
+        return merged
+
+    def chat(self, task: str, profile: dict | None = None) -> str:
+        """Direct answer, no tools. Used for greetings and general questions."""
+        prof = profile or {}
+        full_task, attached = expand_mentions(task, self.root)
+        if attached:
+            self.on_event("attached", attached)
+        prefs = [p["text"] for p in self.mem.profile()]
+        msgs = [{"role": "system", "content": chat_system(self.cfg, prefs)}] + self._history() + \
+               [{"role": "user", "content": full_task}]
+        self.mem.append_turn(self.session, "user", task)
+        self.on_event("model_start", {"label": "Thinking"})
+
+        def feed(tok):
+            self.on_event("token", tok)
+            self.on_event("stream", tok)
+        reply = self.server.chat(msgs, max_tokens=prof.get("max_tokens", 1024), thinking=False, on_token=feed)
+        answer = re.sub(r"<think>.*?</think>", "", reply, flags=re.S).strip() or "(no answer)"
+        self.on_event("final", {"text": answer, "streamed": True})
+        self.mem.append_turn(self.session, "assistant", answer)
+        return answer
+
     def run(self, task: str, profile: dict | None = None, skill=None, record=True) -> str:
         prof = profile or {}
         max_tokens = prof.get("max_tokens", 1200)
         thinking = prof.get("thinking", False)
+        extra = self.mcp.tool_names() if self.mcp is not None else []
+        schema = action_schema(extra, thought_chars=400 if thinking else 200)
+        if getattr(self.server, "schema_ok", True):
+            thinking = False      # the grammar has no room for <think>; the "thought" field replaces it
         for pref in learn.capture_preferences(task):
             if self.mem.prefer(pref):
                 self.on_event("learned", pref)
@@ -144,16 +210,27 @@ class Agent:
         head = len(msgs)
         self.mem.append_turn(self.session, "user", task)
         self.tools.changed = []
-        last_call, bad = None, 0
-        for _ in range(self.max_steps):
+        last_call, bad, repeats, last_obs = None, 0, 0, ""
+        for step in range(self.max_steps):
             streamer = self._streamer()
+
+            def feed(tok, _s=streamer):
+                self.on_event("token", tok)
+                _s.feed(tok)
+            self.on_event("model_start", {"label": "Thinking" if step == 0 else "Working", "step": step})
             reply = self.server.chat(msgs, max_tokens=max_tokens, thinking=thinking,
-                                     on_token=streamer.feed if streamer else None)
+                                     on_token=feed, json_schema=schema)
             act = _parse_action(reply)
             if act is None:
                 bad += 1
                 plain = re.sub(r"<think>.*?</think>", "", reply, flags=re.S).strip()
-                if bad >= 2 and plain:
+                if '"tool"' in plain:
+                    plain = ""        # broken tool JSON is not an answer; never show it raw
+                if bad >= 3:
+                    act = {"tool": "final", "args": {"message": plain or
+                           "Stopped: the model did not reply in the tool format. Try a shorter request, "
+                           "or a bigger model with /model."}}
+                elif bad >= 2 and plain:
                     # small models sometimes answer in prose; accept it rather than loop
                     act = {"tool": "final", "args": {"message": plain}}
                 else:
@@ -162,7 +239,7 @@ class Agent:
                     self.on_event("parse_retry", reply[:200])
                     continue
             tool, args = act["tool"], act.get("args", {})
-            if act.get("thought"):
+            if act.get("thought") and tool != "final":   # a final's thought would print after the answer
                 self.on_event("thought", str(act["thought"]))
             if tool == "final":
                 answer = str(args.get("message", "")).strip() or "(done)"
@@ -174,11 +251,21 @@ class Agent:
                 return answer
             call = (tool, json.dumps(args, sort_keys=True))
             if call == last_call:
-                obs = "(you already ran this exact call; use its result or choose a different step)"
+                repeats += 1
+                if repeats >= 2:
+                    answer = ("Stopped: the model repeated the same step " + tool +
+                              ". Last result:\n" + last_obs[:600])
+                    self.on_event("final", {"text": answer, "streamed": False})
+                    self.mem.append_turn(self.session, "assistant", answer)
+                    return answer
+                obs = ("(you already ran this exact call. Its result is above. Now take a different step, "
+                       "or reply with final.)")
             else:
+                repeats = 0
                 self.on_event("tool", {"tool": tool, "args": args})
                 obs = str(self.tools.call(tool, args))
-                self.on_event("observation", obs[:400])
+                last_obs = obs
+                self.on_event("observation", {"tool": tool, "args": args, "text": obs[:4000]})
                 self._learn_from_tool(tool, args, obs)
             last_call = call
             msgs.append({"role": "assistant", "content": json.dumps(act, ensure_ascii=False)})
@@ -188,8 +275,13 @@ class Agent:
             if len(msgs) > head + 16:
                 # keep system, summary, history and task; drop the oldest tool steps in pairs
                 msgs = msgs[:head] + msgs[-14:]
-        self.on_event("final", {"text": "(step budget exhausted)", "streamed": False})
-        return "(step budget exhausted)"
+        changed = list(dict.fromkeys(self.tools.changed))
+        answer = (f"Stopped after {self.max_steps} steps (step budget). "
+                  + (f"Changed files: {', '.join(changed)}. " if changed else "No files changed. ")
+                  + "Say \"continue\" to go on.")
+        self.on_event("final", {"text": answer, "streamed": False})
+        self.mem.append_turn(self.session, "assistant", answer)
+        return answer
 
     TEST_CMD = re.compile(r"\b(pytest|unittest|npm (run )?test|yarn test|go test|cargo test|mvn test|"
                           r"gradle test|phpunit|rspec|test_\w+\.py|\w+_test\.py)\b")

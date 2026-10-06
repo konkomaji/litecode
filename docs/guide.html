@@ -33,15 +33,14 @@
 <p>litecode has no Python dependencies. It uses only the standard library.</p>
 <h2 id="2-install">2. Install<a class="anchor" href="#2-install" aria-label="Link to this section">#</a></h2>
 <p>Windows (PowerShell):</p>
-<pre><code>git clone https://github.com/konkomaji/litecode
-cd litecode
-.\install.ps1</code></pre>
+<pre><code>irm https://raw.githubusercontent.com/konkomaji/litecode/main/install.ps1 | iex</code></pre>
 <p>Linux or macOS:</p>
-<pre><code>git clone https://github.com/konkomaji/litecode
-cd litecode
-./install.sh</code></pre>
-<p>Manual install: <code>pip install -e .</code> in the repo folder.</p>
-<p>If the <code>litecode</code> command is not found after install, add the Python scripts folder to PATH, or run <code>python -m litecode.cli</code>.</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/konkomaji/litecode/main/install.sh | sh</code></pre>
+<p>The installer does these steps:</p>
+<ol><li>It finds Python 3.10 or newer. On Windows it offers to install Python with winget if none is found.</li><li>It creates a private Python environment: <code>%LOCALAPPDATA%\litecode</code> (Windows) or <code>~/.local/share/litecode</code> (Linux, macOS).</li><li>It installs litecode there and adds the <code>litecode</code> and <code>lite</code> commands to your PATH.</li><li>It starts <code>litecode setup</code>. Set <code>LITECODE_NO_SETUP=1</code> to skip this step.</li></ol>
+<p>From a clone, run <code>.\install.ps1</code> or <code>sh install.sh</code> in the repo folder. This makes an editable install, so code changes apply at once.</p>
+<p>If the <code>litecode</code> command is not found after install, open a new terminal.</p>
+<p>Update: <code>litecode update</code>. Uninstall: delete the private environment folder. Models and data stay in the folders you picked.</p>
 <h2 id="3-setup">3. Setup<a class="anchor" href="#3-setup" aria-label="Link to this section">#</a></h2>
 <p>Run:</p>
 <pre><code>litecode setup</code></pre>
@@ -59,32 +58,48 @@ litecode</code></pre>
 <p>One task without the interactive screen:</p>
 <pre><code>litecode &quot;add a --json flag to main.py and update the tests&quot;</code></pre>
 <h2 id="5-the-interface">5. The interface<a class="anchor" href="#5-the-interface" aria-label="Link to this section">#</a></h2>
-<pre><code>+----------------------------------------------------------+
-| litecode 0.2.0  -  local AI coding assistant             |
-| Built by Konko Maji                                      |
-+----------------------------------------------------------+
-  project  C:\code\my-project
-  models   code, fim, chat, security, quality
-  mode     ask   data D:/llm/data
+<pre><code>╭────────────────────────────────────────────────────────╮
+│ ✻ Welcome to litecode  v0.2.0                          │
+│                                                        │
+│ /help for help, /status for your setup                 │
+│                                                        │
+│ cwd:   C:\code\my-project                              │
+│ model: MiniCPM5-2B-Q4_K_M · CPU 4 threads              │
+╰────────────────────────────────────────────────────────╯
 
-litecode&gt; fix the failing test in @tests/test_api.py
-  . read the test first
-  &gt; read_file {&quot;path&quot;: &quot;tests/test_api.py&quot;}
-  &lt; 1	import pytest
-  &gt; edit_file {&quot;path&quot;: &quot;api.py&quot;, &quot;find&quot;: &quot;...&quot;, &quot;replace&quot;: &quot;...&quot;}
-  allow edit_file?
-  - return a - b
-  + return a + b
-  [y]es / [n]o / [a]lways this session: y
-  &gt; run {&quot;cmd&quot;: &quot;python -m pytest -q&quot;}
-  &lt; (exit 0)
-
-The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
-[code | ask | spec:ngram-simple | 412 tok | 38s]</code></pre>
+&gt; fix the failing test in @tests/test_api.py
+  read the test first
+● Read(tests/test_api.py)
+  ⎿  Read 24 lines
+● Update(api.py)
+╭─ Edit file ──────────────────────────────────────────
+│   api.py
+│   - return a - b
+│   + return a + b
+│
+│ Do you want to proceed?
+│ ❯ 1. Yes
+│   2. Yes, and allow all edits this session
+│   3. No, and tell litecode what to do differently (esc)
+╰──────────────────────────────────────────────────────
+  ⎿  Updated api.py (1 replacement)
+● Bash(python -m pytest -q)
+  ⎿  exit 0
+     3 passed in 0.12s
+● The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+  · 412 tokens · 38s · MiniCPM5-2B-Q4_K_M
+────────────────────────────────────────────────────────
+&gt;
+────────────────────────────────────────────────────────
+  ? for shortcuts · MiniCPM5-2B-Q4_K_M</code></pre>
 <p>Line types:</p>
-<table><thead><tr><th>Mark</th><th>Meaning</th></tr></thead><tbody><tr><td><code>.</code></td><td>model's short reasoning</td></tr><tr><td><code>&gt;</code></td><td>tool call</td></tr><tr><td><code>&lt;</code></td><td>first line of the tool result</td></tr><tr><td>red <code>-</code> / green <code>+</code></td><td>lines removed / added by an edit</td></tr><tr><td>last line</td><td>role, permission mode, speculative mode, tokens, seconds</td></tr></tbody></table>
-<p>The final answer streams live while the model writes it.</p>
-<p>Type <code>@path/to/file</code> in a message to attach that file. Press Ctrl+C to stop a task.</p>
+<table><thead><tr><th>Mark</th><th>Meaning</th></tr></thead><tbody><tr><td>grey text</td><td>the model's short reasoning for the next step</td></tr><tr><td><code>● Name(...)</code></td><td>a tool call: Read, Write, Update, Bash, List, Search, Git, Scan</td></tr><tr><td><code>⎿</code></td><td>the result of the tool call, shortened</td></tr><tr><td>red <code>-</code> / green <code>+</code></td><td>lines removed / added by an edit</td></tr><tr><td><code>●</code> + text</td><td>the answer, streamed live</td></tr><tr><td>last line</td><td>tokens, seconds, model</td></tr></tbody></table>
+<p>While the model works, a spinner shows the time and the token count. Press Ctrl+C to stop.</p>
+<p>Questions and greetings ("what is a list comprehension") get a direct answer without tools, in a few seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent.</p>
+<p>Input keys:</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td>Enter</td><td>send</td></tr><tr><td><code>\</code> then Enter</td><td>new line</td></tr><tr><td>Up / Down</td><td>message history</td></tr><tr><td>Tab</td><td>complete a <code>/command</code></td></tr><tr><td>Shift+Tab</td><td>cycle mode: ask, auto-accept, plan</td></tr><tr><td>Esc</td><td>clear the input</td></tr><tr><td>Ctrl+C</td><td>stop a task; on an empty input, press twice to exit</td></tr><tr><td><code>?</code></td><td>show shortcuts</td></tr></tbody></table>
+<p>Input prefixes: <code>@path/file</code> attaches a file, <code>!command</code> runs a shell command at once (its output becomes context), <code>#text</code> saves a project fact.</p>
+<p>Modes: <strong>ask</strong> asks before each change. <strong>auto-accept</strong> applies changes without asking. <strong>plan</strong> inspects only and writes a plan, then asks if it should carry it out. <code>/mode readonly</code> refuses all changes.</p>
 <h2 id="6-daily-use">6. Daily use<a class="anchor" href="#6-daily-use" aria-label="Link to this section">#</a></h2>
 <table><thead><tr><th>Goal</th><th>Type</th></tr></thead><tbody><tr><td>Ask or change code</td><td>plain text</td></tr><tr><td>Plan first, no edits</td><td><code>/plan add caching to the API</code></td></tr><tr><td>Run tests and fix</td><td><code>/test</code> or <code>/test npm test</code></td></tr><tr><td>Security review</td><td><code>/review src/</code></td></tr><tr><td>Fast static scan only</td><td><code>/scan</code></td></tr><tr><td>Commit message</td><td><code>/commit</code></td></tr><tr><td>Undo an edit</td><td><code>/undo path/file.py</code> (repeat to step back further)</td></tr><tr><td>See token use</td><td><code>/cost</code></td></tr><tr><td>Rate the last answer</td><td><code>/good</code> or <code>/bad</code></td></tr></tbody></table>
 <p>Permission modes (<code>/mode</code>):</p>

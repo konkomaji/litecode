@@ -39,22 +39,27 @@ litecode has no Python dependencies. It uses only the standard library.
 Windows (PowerShell):
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-.\install.ps1
+irm https://raw.githubusercontent.com/konkomaji/litecode/main/install.ps1 | iex
 ```
 
 Linux or macOS:
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/konkomaji/litecode/main/install.sh | sh
 ```
 
-Manual install: `pip install -e .` in the repo folder.
+The installer does these steps:
 
-If the `litecode` command is not found after install, add the Python scripts folder to PATH, or run `python -m litecode.cli`.
+1. It finds Python 3.10 or newer. On Windows it offers to install Python with winget if none is found.
+2. It creates a private Python environment: `%LOCALAPPDATA%\litecode` (Windows) or `~/.local/share/litecode` (Linux, macOS).
+3. It installs litecode there and adds the `litecode` and `lite` commands to your PATH.
+4. It starts `litecode setup`. Set `LITECODE_NO_SETUP=1` to skip this step.
+
+From a clone, run `.\install.ps1` or `sh install.sh` in the repo folder. This makes an editable install, so code changes apply at once.
+
+If the `litecode` command is not found after install, open a new terminal.
+
+Update: `litecode update`. Uninstall: delete the private environment folder. Models and data stay in the folders you picked.
 
 ## 3. Setup
 
@@ -103,43 +108,73 @@ litecode "add a --json flag to main.py and update the tests"
 ## 5. The interface
 
 ```
-+----------------------------------------------------------+
-| litecode 0.2.0  -  local AI coding assistant             |
-| Built by Konko Maji                                      |
-+----------------------------------------------------------+
-  project  C:\code\my-project
-  models   code, fim, chat, security, quality
-  mode     ask   data D:/llm/data
+╭────────────────────────────────────────────────────────╮
+│ ✻ Welcome to litecode  v0.2.0                          │
+│                                                        │
+│ /help for help, /status for your setup                 │
+│                                                        │
+│ cwd:   C:\code\my-project                              │
+│ model: MiniCPM5-2B-Q4_K_M · CPU 4 threads              │
+╰────────────────────────────────────────────────────────╯
 
-litecode> fix the failing test in @tests/test_api.py
-  . read the test first
-  > read_file {"path": "tests/test_api.py"}
-  < 1	import pytest
-  > edit_file {"path": "api.py", "find": "...", "replace": "..."}
-  allow edit_file?
-  - return a - b
-  + return a + b
-  [y]es / [n]o / [a]lways this session: y
-  > run {"cmd": "python -m pytest -q"}
-  < (exit 0)
-
-The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
-[code | ask | spec:ngram-simple | 412 tok | 38s]
+> fix the failing test in @tests/test_api.py
+  read the test first
+● Read(tests/test_api.py)
+  ⎿  Read 24 lines
+● Update(api.py)
+╭─ Edit file ──────────────────────────────────────────
+│   api.py
+│   - return a - b
+│   + return a + b
+│
+│ Do you want to proceed?
+│ ❯ 1. Yes
+│   2. Yes, and allow all edits this session
+│   3. No, and tell litecode what to do differently (esc)
+╰──────────────────────────────────────────────────────
+  ⎿  Updated api.py (1 replacement)
+● Bash(python -m pytest -q)
+  ⎿  exit 0
+     3 passed in 0.12s
+● The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+  · 412 tokens · 38s · MiniCPM5-2B-Q4_K_M
+────────────────────────────────────────────────────────
+>
+────────────────────────────────────────────────────────
+  ? for shortcuts · MiniCPM5-2B-Q4_K_M
 ```
 
 Line types:
 
 | Mark | Meaning |
 |---|---|
-| `.` | model's short reasoning |
-| `>` | tool call |
-| `<` | first line of the tool result |
+| grey text | the model's short reasoning for the next step |
+| `● Name(...)` | a tool call: Read, Write, Update, Bash, List, Search, Git, Scan |
+| `⎿` | the result of the tool call, shortened |
 | red `-` / green `+` | lines removed / added by an edit |
-| last line | role, permission mode, speculative mode, tokens, seconds |
+| `●` + text | the answer, streamed live |
+| last line | tokens, seconds, model |
 
-The final answer streams live while the model writes it.
+While the model works, a spinner shows the time and the token count. Press Ctrl+C to stop.
 
-Type `@path/to/file` in a message to attach that file. Press Ctrl+C to stop a task.
+Questions and greetings ("what is a list comprehension") get a direct answer without tools, in a few seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent.
+
+Input keys:
+
+| Key | Action |
+|---|---|
+| Enter | send |
+| `\` then Enter | new line |
+| Up / Down | message history |
+| Tab | complete a `/command` |
+| Shift+Tab | cycle mode: ask, auto-accept, plan |
+| Esc | clear the input |
+| Ctrl+C | stop a task; on an empty input, press twice to exit |
+| `?` | show shortcuts |
+
+Input prefixes: `@path/file` attaches a file, `!command` runs a shell command at once (its output becomes context), `#text` saves a project fact.
+
+Modes: **ask** asks before each change. **auto-accept** applies changes without asking. **plan** inspects only and writes a plan, then asks if it should carry it out. `/mode readonly` refuses all changes.
 
 ## 6. Daily use
 

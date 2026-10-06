@@ -4,8 +4,7 @@ This page takes you from zero to your first task in about 10 minutes, plus model
 
 ## 1. Check the requirements
 
-- Python 3.10 or newer: `python --version`
-- Git: `git --version`
+- Python 3.10 or newer: `python --version`. On Windows the installer offers to install it.
 - Free disk space: 3 GB for a small PC, 15 GB or more for bigger models
 
 You do not need a GPU. If you have one, litecode uses it.
@@ -15,20 +14,16 @@ You do not need a GPU. If you have one, litecode uses it.
 Windows (PowerShell):
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-.\install.ps1
+irm https://raw.githubusercontent.com/konkomaji/litecode/main/install.ps1 | iex
 ```
 
 Linux or macOS:
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/konkomaji/litecode/main/install.sh | sh
 ```
 
-The installer starts the setup wizard.
+The installer adds the `litecode` and `lite` commands to your PATH and starts the setup wizard. If the command is not found afterwards, open a new terminal.
 
 ## 3. Answer the setup wizard
 
@@ -54,15 +49,16 @@ cd path/to/your/project
 litecode
 ```
 
-Type a task:
+Type a question or a task:
 
 ```
-litecode> explain what @main.py does
-litecode> add input validation to the signup function and run the tests
-litecode> /review src/
+> what is a list comprehension
+> explain what @main.py does
+> add input validation to the signup function and run the tests
+> /review src/
 ```
 
-litecode asks before it changes a file or runs a command. Type `y` to allow, `a` to allow for the rest of the session.
+Questions get a direct answer. Tasks run the agent. litecode asks before it changes a file or runs a command: pick `1` (yes), `2` (yes for the rest of the session), or `3` (no, and tell it what to do instead). Shift+Tab switches to auto-accept or plan mode.
 
 ## 6. Next steps
 

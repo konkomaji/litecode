@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "litecode"
-version = "0.2.0"
+version = "0.3.0"
 description = "Run open-weight LLMs on any machine, from a 4GB laptop to a GPU workstation. Auto-detects hardware, picks models that fit, works fully offline."
 readme = "README.md"
 requires-python = ">=3.10"

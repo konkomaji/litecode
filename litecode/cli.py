@@ -15,6 +15,7 @@
   litecode learn export F  write rated history as a JSONL fine-tune dataset
   litecode config [K V]    show config, or set one key
   litecode fim             serve autocomplete (fill-in-the-middle) for editors
+  litecode update          upgrade litecode to the newest version
   litecode help            full guide location and command list
 
 Flags: --yes (auto-approve), --readonly, --role NAME, --plan.
@@ -28,43 +29,66 @@ from . import config, doctor, catalog, ui, __version__
 DOCS = Path(__file__).resolve().parent.parent / "docs"
 
 
+ZIP_URL = "https://github.com/konkomaji/litecode/archive/refs/heads/main.zip"
+MODES = ("ask", "auto", "plan")       # Shift+Tab cycles these; "readonly" is set with /mode
+
+
 # ---------- events from the agent ----------
 class Printer:
+    """Turns agent events into Claude Code style output: spinner while the model
+    works, one line per tool with a short result, and the answer streamed live."""
+
     def __init__(self):
-        self.streaming = False
+        self.spin = ui.Spinner()
+        self.md = None
+
+    def _end_md(self):
+        if self.md is not None:
+            self.md.close()
+            self.md = None
 
     def __call__(self, kind, data):
-        if kind == "stream":
-            if not self.streaming:
-                print()
-                self.streaming = True
-            sys.stdout.write(data)
-            sys.stdout.flush()
+        if kind == "model_start":
+            self._end_md()
+            self.spin.start((data or {}).get("label", "Thinking"))
             return
-        if self.streaming and kind != "stream":
-            print()
+        if kind == "token":
+            self.spin.tokens += 1
+            return
+        if kind == "stream":
+            self.spin.stop()
+            if self.md is None:
+                self.md = ui.MdStream()
+            self.md.feed(data)
+            return
+        self.spin.stop()
+        if kind == "final":
+            if self.md is not None:
+                self._end_md()
+            elif not data.get("streamed"):
+                text = ui.render_md(data["text"]).replace("\n", "\n  ")
+                print(ui.G["dot"] + " " + text)
+            return
+        self._end_md()
         if kind == "thought":
-            print(ui.dim(f"  . {data}"))
+            print(ui.dim(ui.italic("  " + ui.clip(str(data), ui.width() - 4))))
         elif kind == "tool":
-            print(ui.cyan(f"  > {data['tool']} ") + ui.dim(ui.pretty_args(data.get("args", {}))))
+            ui.print_tool(data["tool"], data.get("args", {}))
         elif kind == "observation":
-            first = str(data).splitlines()[0][:120] if str(data).strip() else ""
-            print(ui.dim(f"  < {first}"))
-        elif kind == "final":
-            if not data.get("streamed"):
-                print("\n" + ui.render_md(data["text"]))
-            print()
-            self.streaming = False
+            if isinstance(data, dict):
+                ui.print_result(data["tool"], data["text"])
+            else:
+                ui.print_result("", str(data))
         elif kind == "parse_retry":
-            print(ui.yellow("  (model broke protocol, retrying)"))
+            print(ui.dim(f"  {ui.G['elbow']}  model reply was not valid, retrying"))
         elif kind == "learned":
-            print(ui.magenta(f"  + remembered preference: {data}"))
+            print(ui.magenta(f"  {ui.G['elbow']}  remembered: {data}"))
         elif kind == "attached":
-            print(ui.dim(f"  attached: {', '.join(data)}"))
+            print(ui.dim(f"  {ui.G['elbow']}  attached {', '.join(data)}"))
         elif kind == "skill":
-            print(ui.magenta(f"  skill: {data}"))
+            print(ui.magenta(f"{ui.G['dot']} skill /{data}"))
         elif kind == "saved":
-            print(ui.green(f"  saved: {data}"))
+            print(ui.green(f"  {ui.G['elbow']}  saved {data}"))
 
 
 class Approver:
@@ -72,15 +96,14 @@ class Approver:
         self.auto = auto
         self.always: set[str] = set()
 
-    def __call__(self, action: str, detail: str) -> bool:
+    def __call__(self, action: str, detail: str):
         if self.auto or action in self.always:
-            print(ui.dim(f"  [auto] {action}: {detail.splitlines()[0]}"))
             return True
         ans = ui.approve_prompt(action, detail)
         if ans == "always":
             self.always.add(action)
             return True
-        return bool(ans)
+        return ans          # True, False, or the user's instruction (str)
 
 
 # ---------- session ----------
@@ -118,25 +141,53 @@ class Session:
     def ensure(self, role):
         from .server import Server
         if self.srv is None:
-            self.srv = Server(self.cfg)
+            self.srv = Server(self.cfg, quiet=True)
+        path = config.model_path(self.cfg, role)
+        if self.srv.role != role and path is not None and self.srv.path == path and self.srv.proc:
+            self.srv.role = role         # same model file: switch role without a reload
+            return self.srv
         if self.srv.role != role:
-            if self.srv.role and self._cache_role:
-                self.srv.save_cache(self._cache_name(self._cache_role))
-            self.srv.ensure(role)
-            if self.srv.restore_cache(self._cache_name(role)):
-                print(ui.dim("  restored prompt cache for this project"))
+            name = path.stem if path else role
+            with ui.Spinner(f"Loading {name}"):
+                if self.srv.role and self._cache_role:
+                    self.srv.save_cache(self._cache_name(self._cache_role))
+                self.srv.ensure(role)
+                restored = self.srv.restore_cache(self._cache_name(role))
+            print(ui.dim(f"  {ui.G['elbow']}  {name} ready" + (" (prompt cache restored)" if restored else "")))
             self._cache_role = role
         return self.srv
+
+    def set_mode(self, mode):
+        self.mode = mode
+        self.approver.auto = mode == "auto"
+        if self.agent:
+            self.agent.tools.mode = "ask" if mode == "plan" else mode
+
+    def cycle_mode(self):
+        cur = self.mode if self.mode in MODES else "ask"
+        self.set_mode(MODES[(MODES.index(cur) + 1) % len(MODES)])
+
+    def footer(self) -> str:
+        path = config.model_path(self.cfg, self.role or "code")
+        model = ui.dim(f"  {ui.G['sep']} {path.stem}") if path else ""
+        if self.mode == "auto":
+            return ui.accent(f"  {ui.G['play']} auto-accept edits on") + ui.dim(" (shift+tab to cycle)") + model
+        if self.mode == "plan":
+            return ui.cyan(f"  {ui.G['pause']} plan mode on") + ui.dim(" (shift+tab to cycle)") + model
+        if self.mode == "readonly":
+            return ui.yellow("  read-only mode") + ui.dim(" (/mode ask to allow changes)") + model
+        return ui.dim("  ? for shortcuts") + model
 
     def get_agent(self):
         from .agent import Agent
         if self.agent is None:
             self.agent = Agent(self.srv, self.root, self.approver, max_steps=self.cfg["max_steps"],
                                on_event=self.printer, session=self.session_id, cfg=self.cfg,
-                               mode=self.mode, skills=self.skills, mcp=self._mcp())
+                               mode="ask" if self.mode == "plan" else self.mode,
+                               skills=self.skills, mcp=self._mcp())
             self.session_id = self.agent.session
         self.agent.server = self.srv
-        self.agent.tools.mode = self.mode
+        self.agent.tools.mode = "ask" if self.mode == "plan" else self.mode
         return self.agent
 
     def pick(self, task):
@@ -153,21 +204,41 @@ class Session:
         return prof
 
     def task(self, text, skill=None, plan=False):
-        prof = self.pick(text)
-        self.ensure(prof["role"])
-        a = self.get_agent()
+        from .router import is_chat, PROFILES
+        plan = plan or self.mode == "plan"
+        chat = not plan and skill is None and not self.role and is_chat(text)
+        if chat:
+            avail = set(config.available_roles(self.cfg))
+            if not avail:
+                raise SystemExit("No models installed. Run `litecode setup` first.")
+            # stay on the loaded model when it can chat: a model swap costs a reload from disk
+            role = self.srv.role if self.srv and self.srv.role in ("code", "chat") else \
+                ("chat" if "chat" in avail else "code" if "code" in avail else next(iter(avail)))
+            prof = dict(PROFILES["chat"], role=role)
+        else:
+            prof = self.pick(text)
         try:
+            self.ensure(prof["role"])
+            a = self.get_agent()
+            if chat:
+                return a.chat(text, prof)
             return a.plan(text, prof) if plan else a.run(text, prof, skill=skill)
         except KeyboardInterrupt:
-            print(ui.yellow("\n  interrupted"))
+            self.printer.spin.stop()
+            self.printer._end_md()
+            print(ui.red(f"  {ui.G['elbow']}  Interrupted"))
             return ""
 
     def close(self):
         from . import learn
         if self.agent and self.srv and self.cfg.get("auto_learn", True):
-            saved = learn.end_of_session(self.srv, self.agent.mem, self.agent.session)
+            try:
+                with ui.Spinner("Saving what this session taught me (ctrl+c to skip)"):
+                    saved = learn.end_of_session(self.srv, self.agent.mem, self.agent.session)
+            except KeyboardInterrupt:
+                saved = []
             for f in saved:
-                print(ui.magenta(f"  + learned: {f}"))
+                print(ui.magenta(f"  {ui.G['elbow']}  learned: {f}"))
         if self.srv and self._cache_role:
             self.srv.save_cache(self._cache_name(self._cache_role))
         if self.srv:
@@ -179,7 +250,8 @@ class Session:
 # ---------- slash commands ----------
 HELP = """commands:
   /help                 this list            /cost        token and time use
-  /plan TASK            plan only, no edits  /mode [ask|auto|readonly]
+  /status               model, engine, mode, folders
+  /plan TASK            plan only, no edits  /mode [ask|auto|plan|readonly]
   /review [PATH]        security review      /scan [PATH] static scan only
   /test [CMD]           run tests, fix loop  /diff        git diff
   /commit               write commit msg     /model [ROLE] show or set model role
@@ -192,7 +264,11 @@ HELP = """commands:
   /skills               list skills          /skill new NAME | /skill make DESCRIPTION | /skill rm NAME
   /NAME [TASK]          run skill NAME       /mcp         list MCP tools
   /config [KEY VALUE]   show or set config   /exit        quit
-  @path/file            attach a file to the message"""
+input:
+  @path/file            attach a file        !command     run a shell command now
+  #text                 save a project fact  \\ + Enter   new line
+  Shift+Tab             cycle mode: ask, auto-accept, plan
+  Up/Down history   Tab complete /command   Esc clear   Ctrl+C interrupt, twice to exit"""
 
 
 def _safe_rel(root: Path, rel: str) -> Path | None:
@@ -253,16 +329,15 @@ def slash(cmd: str, s: Session) -> bool:
                 print(f"  {r:<9} {p.name}")
             print(f"  current: {s.role or 'auto (router)'}")
     elif name == "/mode":
-        if arg in ("ask", "auto", "readonly"):
-            s.mode = arg
-            s.approver.auto = arg == "auto"
+        if arg in ("ask", "auto", "plan", "readonly"):
+            s.set_mode(arg)
             print(f"  mode: {arg}")
         else:
-            print(f"  mode: {s.mode}  (ask | auto | readonly)")
+            print(f"  mode: {s.mode}  (ask | auto | plan | readonly)")
+    elif name == "/status":
+        _status(s)
     elif name == "/plan" and arg:
-        plan = s.task(arg, plan=True)
-        if plan and ui.ask("  run this plan now? [y/N] ", "n").lower().startswith("y"):
-            s.task("Carry out this plan step by step:\n" + plan + "\n\nOriginal task: " + arg)
+        _run_plan(s, arg)
     elif name == "/review":
         s.ensure(s.pick("security review")["role"])
         print(ui.render_md(s.get_agent().review(arg or ".")))
@@ -326,6 +401,47 @@ def slash(cmd: str, s: Session) -> bool:
     else:
         print("  unknown command. /help for list.")
     return True
+
+
+def _run_plan(s, text):
+    plan = s.task(text, plan=True)
+    if plan and not plan.startswith("Stopped") and \
+            ui.ask("  run this plan now? [y/N] ", "n").lower().startswith("y"):
+        if s.mode == "plan":
+            s.set_mode("ask")
+        s.task("Carry out this plan step by step:\n" + plan + "\n\nOriginal task: " + text)
+
+
+def _status(s):
+    cfg = s.cfg
+    eng = Path(cfg["engine"])
+    gpu = int(cfg.get("gpu_layers", 0) or 0)
+    rows = [("version", f"{__version__}  {ui.CREDIT}"), ("cwd", str(s.root)), ("mode", s.mode),
+            ("engine", f"{eng} " + ("[ok]" if eng.exists() else "[missing]")),
+            ("compute", f"GPU, {gpu} layers" if gpu else f"CPU, {cfg['threads']} threads"),
+            ("context", f"{cfg['ctx']} tokens"), ("data", cfg["data_dir"]), ("models", cfg["models_dir"]),
+            ("loaded", s.srv.role if s.srv and s.srv.role else "none")]
+    for k, v in rows:
+        print(f"  {ui.dim(k.ljust(8))} {v}")
+    print(f"  {ui.dim('roles')}")
+    av = config.available_roles(cfg)
+    for r, fn in cfg["roles"].items():
+        print(f"    {r:<9} {fn} " + (ui.green("[ok]") if r in av else ui.dim("[not downloaded]")))
+
+
+def _shell(s, cmd):
+    """!command: run it now (the user typed it, so no approval) and keep the output as context."""
+    from .tools import Tools
+    print(ui.accent(ui.G["dot"]) + " " + ui.tool_title("run", {"cmd": cmd}))
+    out = Tools(s.root, lambda *a: True, mode="auto").run(cmd)
+    for i, ln in enumerate(out.splitlines()[:40]):
+        print(("  " + ui.dim(ui.G["elbow"]) + "  " if i == 0 else "     ") + ln)
+    mem = _mem(s)
+    sid = s.session_id or mem.new_session()
+    s.session_id = sid
+    if s.agent:
+        s.agent.session = sid
+    mem.append_turn(sid, "user", f"I ran `{cmd}` in the project. Output:\n{out[:3000]}")
 
 
 def _test_cmd(root: Path, mem) -> str:
@@ -550,6 +666,23 @@ def main(argv=None):
     if cmd == "fim":
         cmd_fim(cfg)
         return
+    if cmd == "update":
+        cmd_update()
+        return
+
+    if not rest and not config.available_roles(cfg):
+        # first run: no engine or models yet, so start the setup wizard right away
+        print(ui.accent(ui.G["star"]) + " " + ui.bold("Welcome to litecode") + "  " + ui.dim(ui.CREDIT))
+        print("  litecode needs the llama.cpp engine and at least one model. Setup finds what fits this PC.")
+        if not ui.ask("  Run setup now? [Y/n] ", "y").lower().startswith("y"):
+            print("  Run `litecode setup` when ready.")
+            return
+        from . import setup
+        setup.run()
+        cfg = config.load()
+        if not config.available_roles(cfg):
+            print("  No model is installed yet. Run `litecode setup` again to finish.")
+            return
 
     s = Session(cfg, auto, mode, role)
     try:
@@ -564,16 +697,18 @@ def main(argv=None):
             s.task(" ".join(rest), plan=plan)
             return
         avail = config.available_roles(cfg)
-        if not avail:
-            print("litecode: no models installed yet. Run `litecode setup`.")
-            return
-        ui.banner(__version__, str(s.root), list(avail), s.mode, cfg["data_dir"])
+        code = avail.get("code") or next(iter(avail.values()))
+        gpu = int(cfg.get("gpu_layers", 0) or 0)
+        ui.welcome(__version__, str(s.root), code.stem, s.mode, cfg["data_dir"],
+                   "GPU" if gpu else f"CPU {cfg['threads']} threads")
+        cmds = [w for w in HELP.split() if w.startswith("/") and w[1:2].isalpha()]
+        cmds += ["/" + sk.name for sk in s.skills.list()]
+        prompt = ui.Prompt(config.data_path(cfg) / "history.jsonl", commands=set(cmds))
         while True:
-            try:
-                text = input("\n" + ui.cyan("litecode> ")).strip()
-            except (EOFError, KeyboardInterrupt):
-                print()
+            text = prompt.read(s.footer, on_shift_tab=s.cycle_mode)
+            if text is None:
                 break
+            text = text.strip()
             if not text:
                 continue
             if text.startswith("/"):
@@ -583,14 +718,43 @@ def main(argv=None):
                 except Exception as e:
                     print(ui.red(f"  error: {type(e).__name__}: {e}"))
                 continue
+            if text.startswith("!"):
+                _shell(s, text[1:].strip())
+                continue
+            if text.startswith("#") and len(text) > 1 and not text.startswith("#!"):
+                print(ui.dim(f"  {ui.G['elbow']}  ") + ("Saved to project memory." if _mem(s).remember(text[1:].strip())
+                                                       else "Already in project memory."))
+                continue
+            g0, t0 = (s.srv.stats.gen_tokens, s.srv.stats.seconds) if s.srv else (0, 0.0)
             try:
-                s.task(text)
+                if s.mode == "plan":
+                    _run_plan(s, text)
+                else:
+                    s.task(text)
             except Exception as e:
+                s.printer.spin.stop()
                 print(ui.red(f"  error: {type(e).__name__}: {e}"))
             if s.srv:
-                ui.status(s.srv.role or "-", s.mode, s.srv.stats, s.srv.spec_active)
+                gen, secs = s.srv.stats.gen_tokens - g0, s.srv.stats.seconds - t0
+                if secs > 0 and gen:
+                    path = config.model_path(cfg, s.srv.role) if s.srv.role else None
+                    print(ui.dim(f"  {ui.G['sep']} {gen} tokens {ui.G['sep']} {secs:.0f}s"
+                                 + (f" {ui.G['sep']} {path.stem}" if path else "")))
     finally:
         s.close()
+
+
+def cmd_update():
+    """Upgrade an installed litecode in place. A git checkout is updated with git pull."""
+    import subprocess
+    src = Path(__file__).resolve().parent.parent
+    if (src / ".git").exists():
+        print(f"litecode runs from a git checkout: {src}")
+        print("Update it with: git pull")
+        return
+    print("Updating litecode ...")
+    r = subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", "--quiet", ZIP_URL])
+    print("Updated. Run `litecode --version`." if r == 0 else "Update failed. Check your internet connection.")
 
 
 if __name__ == "__main__":

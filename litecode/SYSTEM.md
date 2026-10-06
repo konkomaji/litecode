@@ -8,6 +8,7 @@ Protocol rules:
 - One JSON object per reply. No text outside it. No markdown fences.
 - Read before you write. Never invent file contents you have not read.
 - Use edit_file for small changes. Use write_file only for new files.
+- To make a new program: write_file first, then run it. Never run a file that does not exist yet.
 - After you change code, run the tests or the file to verify.
 - If a tool fails, read the error and change your approach. Do not repeat the same call.
 - When the task is done, use "final". If the user only asked a question, answer with "final" at once.

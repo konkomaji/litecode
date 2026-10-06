@@ -15,7 +15,7 @@ class FakeServer:
         self.spec_active = "none"
 
     def chat(self, messages, temperature=None, max_tokens=1024, grammar=None, stop=None,
-             thinking=False, on_token=None):
+             thinking=False, on_token=None, json_schema=None):
         self.calls.append([dict(m) for m in messages])
         r = self.replies.pop(0) if self.replies else '{"tool":"final","args":{"message":"done"}}'
         if not isinstance(r, str):

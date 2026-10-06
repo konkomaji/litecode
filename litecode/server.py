@@ -39,9 +39,11 @@ class Server:
         self.port = port or cfg["port"]
         self.proc: subprocess.Popen | None = None
         self.role: str | None = None
+        self.path: Path | None = None
         self.spec_active: str = "none"
         self.stats = Stats()
         self.quiet = quiet
+        self.schema_ok = True           # engine accepts json_schema (grammar-locked tool steps)
         atexit.register(self.stop)
 
     @property
@@ -110,7 +112,8 @@ class Server:
             raise FileNotFoundError(f"no model for role '{role}' (check models_dir / downloads)")
         if not Path(self.cfg["engine"]).exists():
             raise FileNotFoundError(f"engine not found: {self.cfg['engine']} (run `litecode setup`)")
-        if self.proc and self.role == role and self._healthy():
+        if self.proc and self._healthy() and (self.role == role or self.path == path):
+            self.role = role          # same model file under another role: no reload from disk
             return
         self.stop()
         spec = self._spec_choice(role)
@@ -123,6 +126,7 @@ class Server:
         if not ok:
             raise RuntimeError("llama-server exited during startup (run `litecode doctor`)")
         self.role = role
+        self.path = path
         self.spec_active = spec
         self._log("model ready.")
 
@@ -155,7 +159,7 @@ class Server:
 
     def chat(self, messages: list[dict], temperature=None, max_tokens=1024,
              grammar: str | None = None, stop: list[str] | None = None,
-             thinking=False, on_token=None) -> str:
+             thinking=False, on_token=None, json_schema: dict | None = None) -> str:
         body = {
             "messages": messages,
             "temperature": self.cfg["temperature"] if temperature is None else temperature,
@@ -165,8 +169,21 @@ class Server:
         }
         if grammar:
             body["grammar"] = grammar
+        elif json_schema and self.schema_ok:
+            body["json_schema"] = json_schema
         if stop:
             body["stop"] = stop
+        try:
+            return self._chat(body, on_token)
+        except urllib.error.HTTPError as e:
+            if "json_schema" not in body or e.code not in (400, 500):
+                raise
+            # older engine without schema support: fall back to lenient parsing
+            self.schema_ok = False
+            body.pop("json_schema")
+            return self._chat(body, on_token)
+
+    def _chat(self, body: dict, on_token) -> str:
         t0 = time.time()
         if on_token is None:
             with self._post("/v1/chat/completions", body) as r:
@@ -214,3 +231,4 @@ class Server:
                 self.proc.kill()
         self.proc = None
         self.role = None
+        self.path = None

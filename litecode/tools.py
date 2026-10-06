@@ -45,11 +45,23 @@ class Tools:
         return p
 
     def _ok(self, action: str, detail: str) -> bool:
+        self.feedback = ""
         if self.mode == "readonly":
             return False
         if self.mode == "auto":
             return True
-        return self.approve(action, detail)
+        ans = self.approve(action, detail)
+        if isinstance(ans, str) and ans not in ("always",):
+            self.feedback = ans          # "no, do this instead"
+            return False
+        return bool(ans)
+
+    def _denied(self) -> str:
+        if self.mode == "readonly":
+            return "(denied: read-only mode. Do not change files; answer or plan instead.)"
+        if getattr(self, "feedback", ""):
+            return f"(denied by user. The user says: {self.feedback})"
+        return "(denied by user)"
 
     # --- read-only (no approval) ---
     def list_dir(self, path="."):
@@ -137,8 +149,11 @@ class Tools:
 
     def write_file(self, path, content):
         p = self._safe(path)
-        if not self._ok("write_file", f"{path} ({len(content)} bytes)"):
-            return "(denied: read-only mode)" if self.mode == "readonly" else "(denied by user)"
+        lines = content.splitlines()
+        preview = "\n".join("  + " + ln for ln in lines[:20]) + (f"\n  ... +{len(lines) - 20} lines" if len(lines) > 20 else "")
+        verb = "overwrite" if p.exists() else "create"
+        if not self._ok("write_file", f"{path} ({verb}, {len(lines)} lines)\n{preview}"):
+            return self._denied()
         self._checkpoint(p, path)
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(content, encoding="utf-8")
@@ -159,7 +174,7 @@ class Tools:
             return f"(find text matches {n} places; add more surrounding context to make it unique)"
         new = data.replace(find, replace, 1)
         if not self._ok("edit_file", f"{path}\n{_mini_diff(find, replace)}"):
-            return "(denied: read-only mode)" if self.mode == "readonly" else "(denied by user)"
+            return self._denied()
         self._checkpoint(p, path)
         p.write_text(new, encoding="utf-8")
         self.changed.append(path)
@@ -171,7 +186,7 @@ class Tools:
         if shell == "bash" and not bash:
             shell = "powershell"
         if not self._ok("run", f"[{shell}] {cmd}"):
-            return "(denied: read-only mode)" if self.mode == "readonly" else "(denied by user)"
+            return self._denied()
         exe = (["powershell", "-NoProfile", "-Command", cmd] if shell == "powershell"
                else [bash, "-c", cmd])
         try:
@@ -217,6 +232,44 @@ def _mini_diff(old: str, new: str, limit=12) -> str:
     o = ["  - " + x for x in old.splitlines()[:limit]]
     n = ["  + " + x for x in new.splitlines()[:limit]]
     return "\n".join(o + n)
+
+
+# Argument schema per tool: name -> (required {arg: type}, optional {arg: type})
+TOOL_ARGS = {
+    "list_dir":   ({}, {"path": "string"}),
+    "glob":       ({"pattern": "string"}, {}),
+    "read_file":  ({"path": "string"}, {"start": "integer", "end": "integer"}),
+    "grep":       ({"pattern": "string"}, {"glob": "string"}),
+    "scan":       ({}, {"path": "string"}),
+    "git_status": ({}, {}),
+    "git_diff":   ({}, {"path": "string"}),
+    "edit_file":  ({"path": "string", "find": "string", "replace": "string"}, {}),
+    "write_file": ({"path": "string", "content": "string"}, {}),
+    "run":        ({"cmd": "string"}, {}),
+    "remember":   ({"text": "string"}, {"kind": "string"}),
+    "final":      ({"message": "string"}, {}),
+}
+
+
+def action_schema(extra_tools=(), thought_chars=200) -> dict:
+    """JSON schema for one agent step. The engine turns it into a grammar, so a small
+    model cannot write broken JSON, unknown tools, or missing arguments."""
+    def branch(name, req, opt):
+        props = {k: {"type": t} for k, t in {**req, **opt}.items()}
+        return {"type": "object",
+                "properties": {"thought": {"type": "string", "maxLength": thought_chars},
+                               "tool": {"const": name},
+                               "args": {"type": "object", "properties": props,
+                                        "required": list(req), "additionalProperties": False}},
+                "required": ["thought", "tool", "args"], "additionalProperties": False}
+    branches = [branch(n, r, o) for n, (r, o) in TOOL_ARGS.items()]
+    if extra_tools:
+        branches.append({"type": "object",
+                         "properties": {"thought": {"type": "string", "maxLength": thought_chars},
+                                        "tool": {"enum": list(extra_tools)},
+                                        "args": {"type": "object"}},
+                         "required": ["thought", "tool", "args"], "additionalProperties": False})
+    return {"anyOf": branches}
 
 
 SPEC = """Tools. Reply with ONE JSON object per step:

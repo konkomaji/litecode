@@ -39,25 +39,24 @@ litecode uses llama.cpp as the local inference engine. The value it adds is the 
 
 ## Install
 
-Requires Python 3.10 or newer. No other dependencies.
+One command. Needs Python 3.10 or newer (on Windows the installer offers to install it with winget). No git needed.
 
 Windows (PowerShell):
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-.\install.ps1
+irm https://raw.githubusercontent.com/konkomaji/litecode/main/install.ps1 | iex
 ```
 
 Linux or macOS:
 
 ```
-git clone https://github.com/konkomaji/litecode
-cd litecode
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/konkomaji/litecode/main/install.sh | sh
 ```
 
-The installer runs `litecode setup`. The wizard detects your machine, asks where to keep data and models, downloads the llama.cpp engine and the models that fit (after asking), and writes your config. Then run `litecode tune` once to tune speed for your PC.
+The installer puts litecode in its own Python environment, adds the `litecode` and `lite` commands to your PATH, and starts `litecode setup`. The wizard detects your machine, asks where to keep data and models, downloads the llama.cpp engine and the models that fit (after asking), and writes your config. Then run `litecode tune` once to tune speed for your PC.
+
+Update: `litecode update`. From a clone: run `install.ps1` or `install.sh` in the repo folder (editable install).
+Uninstall: delete `%LOCALAPPDATA%\litecode` (Windows) or `~/.local/share/litecode` and `~/.local/bin/litecode` (Linux, macOS). Models and data stay in the folders you picked.
 
 ## Quickstart
 
@@ -69,7 +68,9 @@ litecode                  # interactive session in the current folder
 litecode review src/      # static scan + model verdict for each finding
 ```
 
-Inside a session: `/help` lists commands. `@file` attaches a file. `/plan`, `/test`, `/review`, `/commit`, `/undo`, `/memory`, `/skills`, `/mcp`, `/cost`.
+Inside a session: questions and greetings get a direct answer in seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent: each tool step shows as one line (`● Write(calc.py)`, `● Bash(python calc.py)`) with a short result under it, and litecode asks before it changes a file or runs a command.
+
+`/help` lists commands. `@file` attaches a file, `!cmd` runs a shell command, `#text` saves a project fact. Shift+Tab cycles ask, auto-accept and plan mode. Up/Down for history, Tab completes commands, Esc clears, Ctrl+C interrupts.
 
 ## Features
 
