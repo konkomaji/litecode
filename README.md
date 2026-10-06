@@ -117,6 +117,18 @@ litecode can install an official, security-permissive model for authorized penet
 
 Early and active development. Benchmarks are from on-device testing on a single reference machine and will vary on other hardware. Model recommendations and defaults will keep improving as more machines report results.
 
+## Contact
+
+Built by Konko Maji.
+
+- Email: [work.konkomaji@gmail.com](mailto:work.konkomaji@gmail.com)
+- GitHub: [github.com/konkomaji/litecode](https://github.com/konkomaji/litecode)
+- LinkedIn: [linkedin.com/in/konkomaji](https://www.linkedin.com/in/konkomaji/)
+- X: [@konkomaji](https://x.com/konkomaji)
+- Website: [konkomaji.github.io/litecode](https://konkomaji.github.io/litecode/)
+
+Ideas and design: [IDEAS](docs/IDEAS.md), [DESIGN](docs/DESIGN.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE). Built by Konko Maji.
