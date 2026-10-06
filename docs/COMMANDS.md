@@ -8,6 +8,7 @@
 | `litecode "TASK"` | run one task, then exit |
 | `litecode setup` | wizard: folders, engine, models |
 | `litecode tune [ROLE...]` | measure speed, save best threads and speculative mode |
+| `litecode eval [NAME...] [--role R]` | run 8 real agent challenges and score them |
 | `litecode doctor` | hardware, config, engine, installed models |
 | `litecode init` | create `LITECODE.md` |
 | `litecode scan [PATH] [--json]` | static security scan, no model |

@@ -218,7 +218,7 @@ class Memory:
         return rel_path.replace("/", "__").replace("\\", "__").replace(":", "")
 
     def checkpoint(self, rel_path: str, data: str) -> None:
-        stamp = time.strftime("%Y%m%d-%H%M%S") + f"-{time.time_ns() % 1_000_000:06d}"
+        stamp = f"{time.time_ns():020d}"   # monotonic sort order, even for edits in the same second
         (self.dir / "checkpoints" / f"{stamp}__{self._cp_name(rel_path)}").write_text(data, encoding="utf-8")
 
     def last_checkpoint(self, rel_path: str) -> Path | None:

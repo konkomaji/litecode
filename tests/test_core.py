@@ -361,6 +361,9 @@ class TestConfigRouterSetup(unittest.TestCase):
                          "llama-b1-bin-win-vulkan-x64.zip")
         self.assertEqual(setup.pick_engine_asset(assets, "Linux", "x86_64")["name"], "llama-b1-bin-ubuntu-x64.tar.gz")
         self.assertEqual(setup.pick_engine_asset(assets, "Darwin", "arm64")["name"], "llama-b1-bin-macos-arm64.tar.gz")
+        assets.append({"name": "llama-b1-bin-win-cuda-12.4-x64.zip"})
+        self.assertEqual(setup.pick_engine_asset(assets, "Windows", "AMD64", "cuda")["name"], "llama-b1-bin-win-cuda-12.4-x64.zip")
+        self.assertEqual(setup.cuda_runtime_asset(assets)["name"], "cudart-llama-bin-win-cuda-12.4-x64.zip")
 
 
 class TestCLI(unittest.TestCase):

@@ -4,6 +4,7 @@
   litecode "task..."       run one task, then exit
   litecode setup           hardware-aware setup wizard (folders, engine, models)
   litecode tune            benchmark this PC and save the fastest settings
+  litecode eval [--level L] run 30 challenge tasks (basic/medium/hard), auto-checked
   litecode doctor          show hardware, config, models, engine
   litecode init            create a LITECODE.md project brief
   litecode scan [PATH]     static security scan, no model needed
@@ -414,7 +415,7 @@ def cmd_doctor(cfg):
     av = config.available_roles(cfg)
     for r, fn in cfg["roles"].items():
         print(f"  {r:<9} {fn} " + (ui.green("[ok]") if r in av else ui.dim("[not downloaded]")))
-    rec = catalog.recommend(env.ram_budget_gb, has_gpu=bool(env.gpus) and env.vulkan)
+    rec = catalog.recommend(env.model_budget_gb, has_gpu=env.vram_gb >= 6)
     print(ui.bold("\nRecommended for this machine"))
     for role, m in rec.items():
         print(f"  {role:<9} {m.name} ({m.size_gb:.1f} GB)")
@@ -492,6 +493,18 @@ def main(argv=None):
     if cmd == "tune":
         from . import tune
         tune.run(roles=tuple(rest[1:]) or ("code",))
+        return
+    if cmd == "eval":
+        from . import evals
+        args = rest[1:]
+        opt = {}
+        for flag in ("--model", "--level", "--kind"):
+            if flag in argv and argv.index(flag) + 1 < len(argv):
+                opt[flag] = argv[argv.index(flag) + 1]
+                args = [a for a in args if a != opt[flag]]
+        only = [x for x in args if not x.startswith("-")]
+        evals.run(role=role, only=only or None, model_file=opt.get("--model"),
+                  level=opt.get("--level"), kind=opt.get("--kind"))
         return
     if cmd == "init":
         from .memory import Memory

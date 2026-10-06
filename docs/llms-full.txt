@@ -1,0 +1,1025 @@
+# Quickstart
+
+URL: https://konkomaji.github.io/litecode/quickstart.html
+
+# Quickstart
+
+This page takes you from zero to your first task in about 10 minutes, plus model download time.
+
+## 1. Check the requirements
+
+- Python 3.10 or newer: `python --version`
+- Git: `git --version`
+- Free disk space: 3 GB for a small PC, 15 GB or more for bigger models
+
+You do not need a GPU. If you have one, litecode uses it.
+
+## 2. Install
+
+Windows (PowerShell):
+
+```
+git clone https://github.com/konkomaji/litecode
+cd litecode
+.\install.ps1
+```
+
+Linux or macOS:
+
+```
+git clone https://github.com/konkomaji/litecode
+cd litecode
+./install.sh
+```
+
+The installer starts the setup wizard.
+
+## 3. Answer the setup wizard
+
+The wizard asks 4 things:
+
+1. Where to keep data (cache, memory, skills). Press Enter for the default.
+2. Where to keep models. Pick the disk with the most free space.
+3. Whether to download the engine. Answer yes. If you have an NVIDIA GPU, answer yes to the CUDA build.
+4. Whether to download the recommended models. It shows the size first.
+
+## 4. Tune for your machine
+
+```
+litecode tune
+```
+
+This takes about 5 minutes. It finds the fastest thread count and decoding mode for your CPU or GPU.
+
+## 5. Run your first task
+
+```
+cd path/to/your/project
+litecode
+```
+
+Type a task:
+
+```
+litecode> explain what @main.py does
+litecode> add input validation to the signup function and run the tests
+litecode> /review src/
+```
+
+litecode asks before it changes a file or runs a command. Type `y` to allow, `a` to allow for the rest of the session.
+
+## 6. Next steps
+
+- Learn the interface and daily commands: [User guide](GUIDE.md)
+- See every command: [Commands](COMMANDS.md)
+- Pick models for your hardware: [Hardware and models](HARDWARE.md)
+- Check how well models do on real tasks: [Benchmarks](BENCHMARKS.md)
+
+
+---
+
+# litecode guide
+
+URL: https://konkomaji.github.io/litecode/guide.html
+
+# litecode guide
+
+litecode is a local AI coding and security assistant. It runs open-weight models on your own PC. It works offline after setup. Built by Konko Maji.
+
+Contents:
+1. Requirements
+2. Install
+3. Setup
+4. First run
+5. The interface
+6. Daily use
+7. Memory and learning
+8. Skills
+9. MCP servers
+10. Security work
+11. Speed tuning
+12. Files and folders
+13. Customize the system prompt
+14. Uninstall
+
+Other pages: [Quickstart](QUICKSTART.md), [Commands](COMMANDS.md), [Hardware and models](HARDWARE.md), [Memory and learning](MEMORY.md), [Skills](SKILLS.md), [MCP servers](MCP.md), [Security review](SECURITY.md), [Editor autocomplete](EDITORS.md), [FAQ](FAQ.md), [Troubleshooting](TROUBLESHOOTING.md).
+
+---
+
+## 1. Requirements
+
+| Item | Minimum | Better |
+|---|---|---|
+| RAM | 4 GB | 16 GB |
+| CPU | any x86-64 or ARM64 | 4+ cores with AVX2 |
+| Disk | 3 GB free | 15 GB free on an SSD |
+| Python | 3.10 | 3.12 |
+| GPU | not needed | Vulkan or CUDA GPU (optional) |
+
+litecode has no Python dependencies. It uses only the standard library.
+
+## 2. Install
+
+Windows (PowerShell):
+
+```
+git clone https://github.com/konkomaji/litecode
+cd litecode
+.\install.ps1
+```
+
+Linux or macOS:
+
+```
+git clone https://github.com/konkomaji/litecode
+cd litecode
+./install.sh
+```
+
+Manual install: `pip install -e .` in the repo folder.
+
+If the `litecode` command is not found after install, add the Python scripts folder to PATH, or run `python -m litecode.cli`.
+
+## 3. Setup
+
+Run:
+
+```
+litecode setup
+```
+
+The wizard does these steps:
+
+1. It detects CPU, RAM, disks (SSD or HDD) and GPU.
+2. It asks where to keep data. Data = cache, KV slots, scratchpad, memory, skills. Press Enter to use the default (`~/.litecode`).
+3. It asks where to keep models. Models need several GB. Pick the disk with the most free space.
+4. It asks if project memory goes in each project (`.litecode/` folder) or in the data folder.
+5. It downloads the llama.cpp engine (30-80 MB) if no engine is found.
+6. It recommends models that fit your RAM. It shows the download size and asks before it downloads.
+7. It writes `~/.litecode/config.toml`.
+
+Then run the tuner once (about 5 minutes):
+
+```
+litecode tune
+```
+
+The tuner measures thread counts and speculative decoding on your PC. It saves the fastest settings.
+
+To change a location later: run `litecode setup` again, or `litecode config data_dir D:/litecode-data`.
+
+## 4. First run
+
+```
+cd my-project
+litecode init        # optional: creates LITECODE.md, a brief about the project
+litecode
+```
+
+The first model load takes 10-60 seconds on a hard drive. Later tasks reuse the loaded model.
+
+One task without the interactive screen:
+
+```
+litecode "add a --json flag to main.py and update the tests"
+```
+
+## 5. The interface
+
+```
++----------------------------------------------------------+
+| litecode 0.2.0  -  local AI coding assistant             |
+| Built by Konko Maji                                      |
++----------------------------------------------------------+
+  project  C:\code\my-project
+  models   code, fim, chat, security, quality
+  mode     ask   data D:/llm/data
+
+litecode> fix the failing test in @tests/test_api.py
+  . read the test first
+  > read_file {"path": "tests/test_api.py"}
+  < 1	import pytest
+  > edit_file {"path": "api.py", "find": "...", "replace": "..."}
+  allow edit_file?
+  - return a - b
+  + return a + b
+  [y]es / [n]o / [a]lways this session: y
+  > run {"cmd": "python -m pytest -q"}
+  < (exit 0)
+
+The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+[code | ask | spec:ngram-simple | 412 tok | 38s]
+```
+
+Line types:
+
+| Mark | Meaning |
+|---|---|
+| `.` | model's short reasoning |
+| `>` | tool call |
+| `<` | first line of the tool result |
+| red `-` / green `+` | lines removed / added by an edit |
+| last line | role, permission mode, speculative mode, tokens, seconds |
+
+The final answer streams live while the model writes it.
+
+Type `@path/to/file` in a message to attach that file. Press Ctrl+C to stop a task.
+
+## 6. Daily use
+
+| Goal | Type |
+|---|---|
+| Ask or change code | plain text |
+| Plan first, no edits | `/plan add caching to the API` |
+| Run tests and fix | `/test` or `/test npm test` |
+| Security review | `/review src/` |
+| Fast static scan only | `/scan` |
+| Commit message | `/commit` |
+| Undo an edit | `/undo path/file.py` (repeat to step back further) |
+| See token use | `/cost` |
+| Rate the last answer | `/good` or `/bad` |
+
+Permission modes (`/mode`):
+
+| Mode | Behavior |
+|---|---|
+| `ask` | litecode asks before each edit or command (default) |
+| `auto` | no questions; same as `--yes` |
+| `readonly` | edits and commands are refused |
+
+All commands: [Commands](COMMANDS.md).
+
+## 7. Memory and learning
+
+litecode records every session to disk automatically. It learns without retraining the model:
+
+1. Preferences: if you write "always use type hints" or "don't add comments", litecode saves it. It applies to all projects.
+2. Facts: when a session ends, the model writes short project facts (commands, conventions). A test command that passes is saved at once.
+3. Examples: each finished task is stored. A similar task later gets the best past answer as an example. `/good` and `/bad` rate answers. Bad answers are never reused.
+
+You can see and edit all of it: `/memory`, `/forget`, and the files listed in [Memory and learning](MEMORY.md).
+
+Real fine-tuning: `litecode learn export data.jsonl` writes your rated history as a training set. Train a LoRA on a GPU machine. Set `lora` in config. Details in [Memory and learning](MEMORY.md).
+
+## 8. Skills
+
+A skill is a saved instruction pack, like a Claude Code skill. Built-in skills: `review`, `test-fix`, `explain`, `commit`, `refactor`, `skill-builder`.
+
+- Run one: `/review src/`, `/explain @utils.py`.
+- Make one step by step: `/skill new my-skill`.
+- Let the model draft one: `/skill make a skill that checks Django migrations`.
+- List: `/skills`.
+
+Details: [Skills](SKILLS.md).
+
+## 9. MCP servers
+
+litecode connects to Model Context Protocol servers over stdio. It reads the same `.mcp.json` format as Claude Code.
+
+```
+litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
+litecode mcp            # list servers
+```
+
+Inside a session, `/mcp` lists the tools. Details: [MCP servers](MCP.md).
+
+Warning: small models handle few tools well. Add only the servers you need.
+
+## 10. Security work
+
+- `/scan` runs static rules with no model. If Semgrep or Bandit is installed, litecode uses them too.
+- `/review` scans, then the model gives a verdict for each finding: real or false positive, severity, reason, fix.
+- Reports are saved in `.litecode/reviews/`.
+- The setup can install an official security model (Foundation-Sec-8B or WhiteRabbitNeo). Security tasks route to it.
+
+Use security features only on code and systems you own or have permission to test.
+
+## 11. Speed tuning
+
+| Setting | Effect |
+|---|---|
+| `litecode tune` | picks threads and speculative mode by measurement |
+| `kv_persist = true` | saves the prompt cache per project; next start skips reprocessing |
+| `speculative = "auto"` | n-gram drafting for code roles; it speeds up edits that repeat text |
+| `ctx = 8192` | smaller context = less RAM, faster |
+| `gpu_layers = 99` | with a Vulkan or CUDA engine build, moves layers to the GPU |
+| models on SSD | load time drops from about 30 s to about 5 s |
+
+Generation speed depends mostly on RAM bandwidth. Two RAM sticks (dual channel) are about 2x faster than one.
+
+## 12. Files and folders
+
+| Path | Content |
+|---|---|
+| `~/.litecode/config.toml` | settings |
+| `<data_dir>/profile.jsonl` | your preferences (all projects) |
+| `<data_dir>/learn/examples.jsonl` | finished tasks with ratings |
+| `<data_dir>/slots/` | saved prompt caches |
+| `<data_dir>/scratch/` | scratchpad files |
+| `<data_dir>/skills/` | your user skills |
+| `<data_dir>/mcp.json` | your MCP servers |
+| `<data_dir>/bench/` | tune reports |
+| `<project>/LITECODE.md` | project brief (you edit it) |
+| `<project>/.litecode/` | project facts, sessions, summaries, checkpoints, reviews, project skills |
+
+## 13. Customize the system prompt
+
+litecode ships `litecode/SYSTEM.md`. It holds the tool protocol and the answer style rules (ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler).
+
+To change it, copy it to `<data_dir>/SYSTEM.md` and edit the copy. Keep the `{spec}` line: litecode puts the tool list there.
+
+## 14. Uninstall
+
+1. `pip uninstall litecode`
+2. Delete `~/.litecode` and your data and models folders.
+3. Delete `.litecode/` folders in your projects.
+
+
+---
+
+# Hardware and models
+
+URL: https://konkomaji.github.io/litecode/hardware.html
+
+# Hardware and models
+
+litecode runs on any machine, from a 4 GB laptop to a workstation with a large GPU. It measures the machine and picks models that fit. On a small PC it picks small, fast models. On a big machine it picks bigger, stronger models.
+
+## How litecode chooses
+
+1. `litecode setup` reads total RAM, CPU cores, disk type, and GPU.
+2. It plans with about 60% of total RAM, so your browser and editor keep working.
+3. It picks a model for each role: `code`, `chat`, `fim` (autocomplete), `security`, and `quality` (hard tasks).
+4. With a GPU build, it moves model layers to the GPU (`gpu_layers = 99`).
+
+## Tiers
+
+| Machine | What litecode loads | Expected use |
+|---|---|---|
+| 4 GB RAM, no GPU | Qwen2.5-Coder-1.5B + 0.5B autocomplete | code help, explanations, small fixes |
+| 8 GB RAM, no GPU | MiniCPM5-2B + 1.5B autocomplete | daily coding, security review, writing |
+| 16 GB RAM, no GPU | LFM2.5-8B-A1B (fast MoE) + security model on demand | full agent work on real projects |
+| 32 GB RAM | adds Qwen3.5-9B as the quality model | harder multi-file tasks |
+| GPU, 12 GB+ VRAM | Qwen3.6-35B-A3B and other 30B-class models | large refactors, deep reviews, long context |
+
+These are defaults. Any GGUF model works. Set it with `litecode config roles.code MyModel.gguf`.
+
+## GPUs
+
+| GPU | Engine build | How to get it |
+|---|---|---|
+| NVIDIA | CUDA | setup offers it when it finds `nvidia-smi` |
+| AMD, Intel, NVIDIA | Vulkan | setup offers it when it finds `vulkaninfo` |
+| Apple Silicon | Metal (in the macOS build) | automatic |
+| Old GPUs (2 GB, Kepler era) | CPU | litecode ignores the GPU |
+
+Set how many layers go to the GPU: `litecode config gpu_layers 99` (all) or a smaller number to share VRAM.
+
+## What makes it fast
+
+- Generation speed depends mostly on memory bandwidth. Two RAM sticks (dual channel) give about 2x the speed of one.
+- Models on an SSD load in about 5 seconds. On a hard drive they take about 30 seconds. litecode keeps the model loaded between tasks.
+- The prompt cache is saved per project. The next session skips reprocessing the long system prompt.
+- N-gram speculative decoding speeds up edits that repeat existing code.
+- `litecode tune` measures all of this on your machine and keeps the fastest settings.
+
+## Reference machine
+
+All published litecode numbers come from this low-end PC, so you can compare:
+
+| Part | Value |
+|---|---|
+| CPU | AMD Ryzen 3 3200G, 4 cores, 4 threads (2019) |
+| RAM | 16 GB DDR4-2133, dual channel |
+| GPU | GeForce GT 710 2 GB (too old, not used) |
+| Disk | 7200 rpm hard drive for models |
+
+If litecode runs well on this machine, it runs better on yours. See [Benchmarks](BENCHMARKS.md).
+
+
+---
+
+# Use cases
+
+URL: https://konkomaji.github.io/litecode/use-cases.html
+
+# Use cases
+
+litecode focuses on coding and security. It also helps with writing, study, and everyday questions, because the same local models do those tasks well.
+
+## Coding (main focus)
+
+- Fix bugs: "test_cart.py fails, find the root cause and fix it."
+- Add features with tests: "add a --json flag and update the tests."
+- Refactor safely: "rename get_usr to get_user in every file." litecode runs the tests before and after.
+- Explain code: "explain @parser.py step by step."
+- Test-fix loop: `/test` runs your tests, reads the failure, fixes the code, and runs them again.
+- Commit messages: `/commit` writes a message from the diff.
+- Autocomplete in your editor: `litecode fim`.
+
+## Security (main focus)
+
+- Static scan with zero model tokens: `/scan`.
+- Review with a verdict per finding: `/review src/`.
+- Fix common classes: SQL injection, XSS, command injection, path traversal, unsafe deserialization, hardcoded secrets.
+- Authorized pentest and CTF practice with an official security model (Foundation-Sec-8B or WhiteRabbitNeo).
+
+See [Security](SECURITY.md).
+
+## Writing
+
+- Emails and messages: "write email.txt telling the team the update moves to Friday 18:00, max 80 words."
+- Summaries: "summarize notes.txt in 3 bullet points with the budget and the deadline."
+- Documentation: "write API.md for every public function in lib.py."
+- README files, release notes, reports.
+
+Answers use plain, short sentences (ASD-STE100 rules). Text is easy to read for second-language English speakers.
+
+## Study and questions
+
+- Ask about a concept: "what is a race condition? give a 5-line Python example."
+- Learn a codebase: "which function in the app package is never called?"
+- Practice offline: no internet and no data charges after setup.
+
+## Data tasks
+
+- CSV and JSON reports: "write report.py that prints total sales per region."
+- Log analysis: "count status codes and the top IP in access.log."
+- Config edits: "set debug to false in settings.json."
+
+## Proof
+
+Every use case above is a challenge in the litecode test suite. See which models pass which tasks on the [Benchmarks](BENCHMARKS.md) page.
+
+
+---
+
+# Commands
+
+URL: https://konkomaji.github.io/litecode/commands.html
+
+# Commands
+
+## Shell commands
+
+| Command | What it does |
+|---|---|
+| `litecode` | interactive session in the current folder |
+| `litecode "TASK"` | run one task, then exit |
+| `litecode setup` | wizard: folders, engine, models |
+| `litecode tune [ROLE...]` | measure speed, save best threads and speculative mode |
+| `litecode eval [NAME...] [--role R]` | run 8 real agent challenges and score them |
+| `litecode doctor` | hardware, config, engine, installed models |
+| `litecode init` | create `LITECODE.md` |
+| `litecode scan [PATH] [--json]` | static security scan, no model |
+| `litecode review [PATH]` | scan, then model verdict per finding |
+| `litecode plan "TASK"` | read-only plan |
+| `litecode skills` | list skills |
+| `litecode skills new NAME` | create a skill step by step |
+| `litecode skills rm NAME` | delete a user or project skill |
+| `litecode mcp` | list MCP servers (`--tools` to list their tools) |
+| `litecode mcp add NAME CMD [ARGS...]` | add an MCP server to the user config |
+| `litecode mcp rm NAME` | remove it |
+| `litecode learn export FILE [--all]` | write a fine-tune dataset (rated tasks; `--all` adds unrated) |
+| `litecode config` | show all settings |
+| `litecode config KEY VALUE` | set one setting (`roles.code NAME.gguf` for roles) |
+| `litecode fim` | autocomplete server for editors |
+| `litecode --version` | version |
+
+Flags: `--yes` (approve all), `--readonly`, `--role NAME`, `--plan`.
+
+## Slash commands (in a session)
+
+| Command | What it does |
+|---|---|
+| `/help` | list commands |
+| `/plan TASK` | plan with no edits, then ask to run it |
+| `/review [PATH]` | security review |
+| `/scan [PATH]` | static scan only |
+| `/test [CMD]` | run tests; if they fail, fix and run again (max 3 rounds) |
+| `/diff` | `git diff` |
+| `/commit` | model writes a commit message; you confirm before commit |
+| `/model [ROLE]` | show roles, or force one (`auto` = router decides) |
+| `/mode [ask\|auto\|readonly]` | permission mode |
+| `/remember TEXT` | save a project fact |
+| `/prefer TEXT` | save a preference for all projects |
+| `/memory` | show preferences and facts |
+| `/forget [facts\|prefs]` | delete memory (both if no argument) |
+| `/good`, `/bad` | rate the last answer |
+| `/undo PATH` | restore the newest checkpoint of a file |
+| `/sessions` | list sessions in this project |
+| `/resume [ID]` | continue a session (latest if no ID) |
+| `/clear` | start a new session |
+| `/init` | create `LITECODE.md` |
+| `/skills` | list skills |
+| `/skill new NAME` | create a skill step by step |
+| `/skill make DESCRIPTION` | model drafts a skill; you confirm |
+| `/skill rm NAME` | delete a skill |
+| `/NAME [TASK]` | run skill NAME |
+| `/mcp` | list MCP tools |
+| `/config [KEY VALUE]` | show or set config |
+| `/cost` | tokens and model time this session |
+| `/exit` | quit (saves cache, extracts facts) |
+
+## Config keys
+
+| Key | Default | Meaning |
+|---|---|---|
+| `engine` | `<home>/engine/llama-server` | llama.cpp server binary |
+| `models_dir` | `<home>/models` | GGUF folder |
+| `data_dir` | `~/.litecode` | cache, slots, scratch, memory, skills |
+| `project_memory` | `project` | `project` or `central` |
+| `threads` | 4 | CPU threads |
+| `ctx` | 8192 | context tokens |
+| `kv_type` | `q8_0` | KV cache type |
+| `cache_ram_mb` | 1024 | server prompt cache RAM |
+| `gpu_layers` | 0 | layers on GPU (GPU builds only) |
+| `speculative` | `auto` | `auto`, `off`, `ngram-simple`, `ngram-mod` |
+| `kv_persist` | true | save prompt cache per project |
+| `permission` | `ask` | default permission mode |
+| `auto_learn` | true | extract facts at session end |
+| `lora` | empty | LoRA adapter path |
+| `max_steps` | 24 | tool steps per task |
+| `temperature` | 0.1 | sampling temperature |
+| `port`, `fim_port` | 8080, 8081 | local ports |
+| `roles.<role>` | see config | model file per role: code, chat, fim, security, quality |
+
+
+---
+
+# Security review
+
+URL: https://konkomaji.github.io/litecode/security.html
+
+# Security review
+
+litecode finds security problems in two stages. Stage 1 costs no model tokens. Stage 2 uses the model only on the flagged lines.
+
+## Stage 1: static scan
+
+```
+litecode scan            # whole project
+litecode scan src/api    # one folder
+litecode scan --json     # machine-readable output
+```
+
+litecode runs:
+
+1. Semgrep, if installed (`pip install semgrep`).
+2. Bandit, if installed (`pip install bandit`).
+3. Built-in rules, always. They need no install and no internet.
+
+Built-in rules cover Python, JavaScript/TypeScript, PHP, and secrets in any file:
+
+| Class | CWE | Examples |
+|---|---|---|
+| SQL injection | CWE-89 | SQL built with f-strings, `$_GET` in queries |
+| Command injection | CWE-78 | `shell=True`, `os.system`, PHP `system()` |
+| Code injection | CWE-95 | `eval`, `exec`, `new Function` |
+| XSS | CWE-79 | `innerHTML =`, `document.write`, `dangerouslySetInnerHTML` |
+| Unsafe deserialization | CWE-502 | `pickle.loads`, `yaml.load`, PHP `unserialize` |
+| File inclusion | CWE-98 | `include($_GET[...])` |
+| Hardcoded secrets | CWE-798 | API keys, AWS keys, private keys |
+| Weak crypto and TLS | CWE-328, CWE-295 | MD5/SHA1, `verify=False` |
+
+## Stage 2: model review
+
+```
+litecode review src/
+```
+
+For each finding, the model reads about 13 lines around the flagged line. It answers in exactly 4 lines:
+
+```
+VERDICT: real | false-positive | needs-context
+SEVERITY: high | medium | low
+WHY: one sentence
+FIX: the smallest safe change
+```
+
+A grammar forces this format, so small models cannot drift into long text. The report is saved in `.litecode/reviews/`.
+
+## Fixing
+
+Ask in plain words: "fix the SQL injection in db.py with a parameterized query." litecode edits the code and you approve the diff. Run your tests after: `/test`.
+
+## Security models
+
+`litecode setup` can install an official security model:
+
+- Foundation-Sec-8B (Cisco): analysis, triage, CVE knowledge.
+- WhiteRabbitNeo-V3-7B: offensive security and exploit research.
+
+Security tasks route to it automatically when it is installed.
+
+## Rules of use
+
+Use litecode security features only on code and systems that you own or have written permission to test. The model refuses attacks on third parties.
+
+
+---
+
+# Memory and learning
+
+URL: https://konkomaji.github.io/litecode/memory.html
+
+# Memory and learning
+
+litecode saves every session to disk. It gets better with use in three ways. None of them change the model weights.
+
+## What is saved, and where
+
+| Data | File | Scope |
+|---|---|---|
+| Every turn of every session | `<project>/.litecode/sessions/<id>.jsonl` | project |
+| Full history before compaction | `sessions/<id>.full.jsonl.bak` | project |
+| Summary of older turns | `summaries/<id>.md` | project |
+| Project facts | `memory.jsonl` | project |
+| File snapshots for undo | `checkpoints/` | project |
+| Security review reports | `reviews/` | project |
+| Your preferences | `<data_dir>/profile.jsonl` | all projects |
+| Finished tasks + ratings | `<data_dir>/learn/examples.jsonl` | all projects |
+
+If `project_memory = "central"`, the project files go to `<data_dir>/projects/<name>-<id>/` instead of the project folder.
+
+All files are plain JSON lines or Markdown. You can read, edit or delete them.
+
+## How litecode learns
+
+1. Preferences. A message line that starts with "always", "never", "don't", "prefer", "from now on", "make sure to" or "avoid" becomes a preference. No model call is needed. Preferences go into every prompt, in all projects. Add one by hand: `/prefer use pathlib, not os.path`.
+2. Facts. A test command that passes is saved at once. When a session ends (`/exit`), the model reads the session and saves up to 6 durable facts. To turn off the model step: `litecode config auto_learn false`.
+3. Examples. Each finished task is saved with the files it changed. For a new task, litecode finds similar past tasks by keyword overlap. It adds the best one to the prompt. Rate answers with `/good` and `/bad`. A bad answer is never reused. A good answer ranks higher.
+
+Context limits: small models have small context windows. litecode keeps the last 8 turns raw. It folds older turns into a summary.
+
+## Fine-tuning (optional, on other hardware)
+
+Constraint: training a 2B+ model on a 4-core CPU takes days. Do it on a GPU machine. A free Google Colab GPU is enough for a LoRA on a 2B-4B model.
+
+1. Rate answers with `/good` while you work.
+2. Export: `litecode learn export my_data.jsonl` (add `--all` to include unrated tasks).
+3. Train a LoRA on the same base model you use (for example with Unsloth or PEFT). The file is chat format: `{"messages": [...]}` per line.
+4. Convert the adapter to GGUF with llama.cpp: `python convert_lora_to_gguf.py --base <base model dir> <adapter dir>`.
+5. Copy the `.gguf` adapter to your PC.
+6. Set it: `litecode config lora D:/llm/adapters/my-lora.gguf`.
+7. Restart litecode. The server loads the adapter.
+
+Warning: an adapter works only with the base model it was trained on.
+
+## Privacy
+
+Nothing leaves your PC. litecode makes no network calls except `litecode setup` downloads, and MCP servers that you add yourself.
+
+
+---
+
+# Skills
+
+URL: https://konkomaji.github.io/litecode/skills.html
+
+# Skills
+
+A skill is a saved set of steps for one kind of task. litecode adds the steps to the prompt when the skill runs. Small models follow short numbered steps well.
+
+## Use a skill
+
+- `/NAME TASK` runs a skill. Example: `/review src/api/`.
+- A skill also runs automatically when its trigger words appear in your message. Max 2 skills per task.
+- `/skills` lists all skills with their scope.
+
+## Built-in skills
+
+| Skill | Use |
+|---|---|
+| `review` | security review: scan, confirm, fix |
+| `test-fix` | run tests, fix failures, repeat |
+| `explain` | explain code in simple steps |
+| `commit` | commit message from the diff |
+| `refactor` | change structure, keep behavior, run tests |
+| `skill-builder` | design a new skill with the model's help |
+
+## Make a skill
+
+Option 1, step by step:
+
+```
+/skill new django-migrations
+```
+
+litecode asks for a description, trigger words, and the steps.
+
+Option 2, the model drafts it:
+
+```
+/skill make a skill that checks Django migrations for missing indexes
+```
+
+litecode shows the draft. You confirm before it saves.
+
+Option 3, write the file yourself. Create `.litecode/skills/<name>/SKILL.md`:
+
+```
+---
+name: django-migrations
+description: Check new Django migrations for missing indexes and data loss.
+triggers: migration, migrations, django
+tools: glob, read_file, grep
+---
+1. Find new files with glob "**/migrations/*.py".
+2. Read each new migration.
+3. Flag RemoveField and DeleteModel. They lose data.
+4. Flag ForeignKey fields without db_index on large tables.
+5. In final, list each problem as file:line and a fix.
+```
+
+Rules for the file:
+
+- `name`: 2-41 characters. Lowercase letters, digits, `-`, `_`.
+- `description`: one sentence.
+- `triggers`: comma separated words (optional).
+- `tools`: tools the steps use (optional, for the reader).
+- Body: 3-8 numbered steps. Use simple words. Name the tools.
+
+## Scope
+
+| Scope | Folder | Who sees it |
+|---|---|---|
+| project | `<project>/.litecode/skills/` | this project; commit it to share with your team |
+| user | `<data_dir>/skills/` | all your projects |
+| builtin | shipped with litecode | everyone |
+
+On a name clash, project wins over user, and user wins over builtin.
+
+Delete: `/skill rm NAME`. Built-in skills cannot be deleted. Override one with a project skill of the same name.
+
+
+---
+
+# MCP servers
+
+URL: https://konkomaji.github.io/litecode/mcp.html
+
+# MCP servers
+
+litecode is an MCP client. It starts MCP servers over stdio and gives their tools to the model. It reads the same `mcpServers` format as Claude Code.
+
+## Add a server
+
+Command line:
+
+```
+litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
+litecode mcp add git uvx mcp-server-git
+litecode mcp                 # list servers
+litecode mcp --tools         # start them and list their tools
+litecode mcp rm fs
+```
+
+Or edit a config file:
+
+```json
+{
+  "mcpServers": {
+    "fs": {"command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]},
+    "notes": {"command": "python", "args": ["notes_server.py"], "env": {"NOTES_DIR": "D:/notes"}},
+    "off": {"command": "x", "disabled": true}
+  }
+}
+```
+
+Config files (later wins on a name clash):
+
+1. `<data_dir>/mcp.json` (user, written by `litecode mcp add`)
+2. `<project>/.mcp.json` (project, same file Claude Code uses)
+3. `<project>/.litecode/mcp.json`
+
+## How the model calls a tool
+
+Tools appear as `mcp__<server>__<tool>`. The model uses the normal JSON format:
+
+```
+{"tool": "mcp__fs__read_file", "args": {"path": "README.md"}}
+```
+
+Each MCP call asks for approval in `ask` mode. In `readonly` mode MCP calls are refused.
+
+## Limits
+
+- Transport: stdio only. HTTP/SSE servers are not supported yet.
+- Tools only. MCP resources and prompts are not used yet.
+- litecode shows the model at most 20 MCP tools. Small models choose badly from long lists. Add only what you need.
+- A server that fails to start is skipped. litecode prints the error and continues.
+- Most MCP servers need Node.js (`npx`) or `uv` (`uvx`). Install those first. Offline use needs the server installed locally.
+
+
+---
+
+# Editor autocomplete
+
+URL: https://konkomaji.github.io/litecode/editors.html
+
+# Editor autocomplete
+
+litecode can serve fill-in-the-middle (FIM) autocomplete with the small `fim` model (default Qwen2.5-Coder-1.5B, about 20 tokens/s on a 4-core CPU).
+
+## 1. Start the server
+
+```
+litecode fim
+```
+
+It listens on `http://127.0.0.1:8081/infill`. Change the port with `litecode config fim_port 8082`.
+
+RAM: the fim model uses about 1.5 GB. It can run next to the main model on a 16 GB PC.
+
+## 2. VS Code
+
+The extension is in `editors/vscode/`. It has no dependencies.
+
+1. Copy the folder `editors/vscode` to `~/.vscode/extensions/litecode-complete` (Windows: `%USERPROFILE%\.vscode\extensions\litecode-complete`).
+2. Restart VS Code.
+3. Type code. A grey suggestion appears after you stop typing. Press Tab to accept.
+
+Settings (`litecode.*`): `url`, `maxTokens` (48), `debounceMs` (350), `enabled`.
+
+## 3. Other editors
+
+Any editor plugin that supports the llama.cpp `/infill` API works. Example: `llama.vim` and `llama.vscode` by ggml-org. Point it at the URL above.
+
+Test by hand:
+
+```
+curl -s http://127.0.0.1:8081/infill -d '{"input_prefix":"def add(a, b):\n    ","input_suffix":"\n","n_predict":16}'
+```
+
+
+---
+
+# Benchmarks
+
+URL: https://konkomaji.github.io/litecode/benchmarks.html
+
+ All numbers on this page were measured on one low-end reference PC. A faster machine gives higher speed. Pass rates depend on the model, not the machine. 
+    CPU  AMD Ryzen 3 3200G, 4 cores / 4 threads (2019)    RAM  16 GB DDR4-2133, dual channel    GPU  none used (GT 710 is too old)    Disk  7200 rpm hard drive    Engine  llama.cpp CPU build, 4 threads, Q4_K_M models    
+ Speed and quick tests 
+ Speed from llama-bench (prompt 512 tokens, generate 64 tokens, 4 threads, CPU only). Quick tests: 8 single-function coding tasks, 10 vulnerability classes to identify, 5 small tool-building tasks. 
+    Model  Prompt tok/s  Generate tok/s  Coding  Vuln ID  Tools       Qwen3.5-0.8B   142.20  33.32  3/8  9/10  1/5     Qwen2.5-Coder-1.5B   65.24  19.86  4/8  9/10  2/5     MiniCPM5-2B   44.88  15.24  8/8  10/10  4/5     LFM2.5-8B-A1B   50.35  13.20  8/8  ?/10  1/5     Llama-3.2-3B   33.29  11.03  6/8  10/10  2/5     Qwen3.5-4B   24.76  7.10  6/8  10/10  4/5     Gemma-4-E4B   20.71  6.79  8/8  10/10  3/5     Qwen3.5-9B   11.99  4.06  ?/8  ?/10  ?/5    
+ Run it yourself  Run the same tests on your machine:   litecode tune                 # speed
+litecode eval                 # all 30 challenges
+litecode eval --level hard    # one level
+litecode eval --kind security # one kind   Results are saved in  &lt;data_dir&gt;/bench/ . 
+
+---
+
+# FAQ
+
+URL: https://konkomaji.github.io/litecode/faq.html
+
+# FAQ
+
+## What is litecode?
+
+litecode is a free, open-source AI coding and security assistant that runs on your own computer. It works in the terminal like a cloud coding agent, but it uses open-weight models through llama.cpp. After setup it works fully offline.
+
+## Can I run an AI coding assistant without a GPU?
+
+Yes. litecode runs on CPU only. On a 2019 Ryzen 3 3200G with 16 GB RAM, the default 2B model writes about 15 tokens per second and passed 8 of 8 coding tasks in our tests.
+
+## How much RAM do I need?
+
+4 GB is the minimum. 8 GB is comfortable for daily coding. 16 GB runs 8B-class models. 32 GB or a GPU runs 30B-class models. See [Hardware and models](HARDWARE.md).
+
+## Does litecode work on high-end machines too?
+
+Yes. litecode scales up. With an NVIDIA GPU it installs the CUDA engine and moves the model to the GPU. With 32 GB or more it loads bigger models. Low-end support is the floor, not the limit.
+
+## Is it really offline and private?
+
+Yes. After setup, litecode makes no network calls. Your code, prompts, and memory stay on your disk as plain files. MCP servers that you add yourself can use the network.
+
+## Which models does it use?
+
+It picks from a tested catalog: MiniCPM5-2B, Qwen2.5-Coder, Qwen3.5, LFM2.5-8B-A1B, Llama 3.2, Gemma 4, Foundation-Sec-8B, WhiteRabbitNeo, Ministral, and bigger models for GPUs. Any GGUF model works.
+
+## How is litecode different from Ollama or LM Studio?
+
+Ollama and LM Studio run models. litecode is a coding agent: it reads and edits your files, runs your tests, reviews security, remembers your project, and tunes itself to your hardware. It uses llama.cpp directly with low-RAM settings.
+
+## Does it learn from me?
+
+Yes, without retraining. It saves your preferences, project facts, and rated past answers, and reuses them. You can also export a dataset and train a LoRA adapter on a GPU machine. See [Memory and learning](MEMORY.md).
+
+## Can it do more than coding?
+
+Yes. Coding and security are the main focus. It also writes emails, summaries, and documentation, answers study questions, and handles CSV, JSON, and log data. See [Use cases](USE-CASES.md).
+
+## Does it support MCP and skills like Claude Code?
+
+Yes. It reads the same `.mcp.json` format and supports `SKILL.md` skills with project, user, and built-in scopes. See [MCP servers](MCP.md) and [Skills](SKILLS.md).
+
+## Why are the answers so short?
+
+litecode follows ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler. Short answers cost fewer tokens, so they arrive faster on slow machines. You can change the rules in `SYSTEM.md`.
+
+## Is it free?
+
+Yes. litecode is MIT licensed. Models are open-weight; check each model's license before you redistribute it.
+
+## Who built it?
+
+Konko Maji. Contact: [work.konkomaji@gmail.com](mailto:work.konkomaji@gmail.com), [LinkedIn](https://www.linkedin.com/in/konkomaji/), [X](https://x.com/konkomaji).
+
+
+---
+
+# Troubleshooting
+
+URL: https://konkomaji.github.io/litecode/troubleshooting.html
+
+# Troubleshooting
+
+Run `litecode doctor` first. It shows the engine, folders and models.
+
+| Problem | Cause | Fix |
+|---|---|---|
+| `engine not found` | no llama-server | `litecode setup`, or `litecode config engine PATH` |
+| `no model for role 'x'` | model file missing | `litecode setup`, or `litecode config roles.x FILE.gguf` |
+| `llama-server exited during startup` | not enough RAM, or bad model file | close programs; use a smaller model; download the file again |
+| First answer is slow | model loads from disk, prompt is processed | normal. Next tasks are faster. Keep models on an SSD if possible |
+| Output is garbage (`GGGG...`) | broken model file or engine bug for that model | check the file hash against Hugging Face; try another quant or a newer engine |
+| `(model broke protocol, retrying)` | small model wrote text, not JSON | normal now and then. If constant, use a bigger model with `/model quality` |
+| `litecode` command not found | Python scripts folder not on PATH | use `python -m litecode.cli`, or add the folder to PATH |
+| Commands fail on Windows with WSL errors | `bash` resolves to the WSL stub | litecode uses Git Bash or PowerShell. Install Git for Windows for bash |
+| PC freezes, disk light on | RAM is full, Windows swaps | use a smaller model, lower `ctx`, close the browser |
+| Port in use | another server on 8080 | `litecode config port 8090` |
+| MCP server fails | missing `npx`/`uvx`, or bad args | run the server command by hand to see the error |
+| Wrong answers repeat | a bad example is reused | `/bad` after a bad answer; `/forget` to clear facts |
+
+Logs: run the engine by hand to see its errors:
+
+```
+<engine> -m <models_dir>/<model>.gguf -c 4096
+```
+
+
+---
+
+# Ideas: what can make litecode unique
+
+URL: https://konkomaji.github.io/litecode/roadmap.html
+
+# Ideas: what can make litecode unique
+
+These ideas follow one thesis: on weak hardware, the win is less work per answer, not bigger hardware. Each idea states what it is, why it is unique, and its cost. Status: none are built yet.
+
+## A. Make small models reliable
+
+| # | Idea | Why it matters | Effort |
+|---|---|---|---|
+| A1 | **Grammar-locked protocol.** Generate every agent step under a GBNF grammar of the tool JSON. | Parse retries drop to zero. A broken step costs a full model call on a slow CPU. litecode already uses grammars for review and facts. | small |
+| A2 | **Syntax-guarded edits.** Before an edit is applied, parse the new file with Python `ast` (or tree-sitter for other languages). Reject edits that break syntax and tell the model the exact error. | The model never leaves the code broken. Zero model tokens. | small |
+| A3 | **Error-pattern cache.** A local table of common compiler and runtime errors with fixed explanations, checked before the model is called. | Answers "IndentationError" or "undefined is not a function" in 0 seconds. | small |
+| A4 | **Verify-first answers.** For any "does X work?" question, litecode writes a tiny test, runs it, and answers from the result. | Answers are checked facts, not guesses. Fits the STE rule "say what you checked". | medium |
+
+## B. Speed on weak PCs
+
+| # | Idea | Why it matters | Effort |
+|---|---|---|---|
+| B1 | **Repo n-gram drafts.** Feed the project's own source to the n-gram speculative cache (llama.cpp `ngram-cache` with a static lookup file built from the repo). | Edits repeat project code. Drafting from the repo raises acceptance with no second model in RAM. | medium |
+| B2 | **Night shift.** Queue slow jobs (9B quality model, full-repo review) to run when the PC is idle. Morning report in `.litecode/reports/`. | A 4 tok/s model is fine if it works while you sleep. | small |
+| B3 | **Classroom pooling.** Use llama.cpp RPC (`ggml-rpc-server`) to split one bigger model across 2-4 old lab PCs on the same LAN. | A school lab of 8 GB PCs can run a model none of them fits alone. | large |
+| B4 | **One teacher PC, many students.** `litecode serve --lan` with a request queue and per-student memory. | Only one PC needs the RAM and the models. | medium |
+| B5 | **Power-aware mode.** On battery, switch to the smallest model and a short context. | Longer battery life on student laptops. | small |
+
+## C. Offline learning, built for students
+
+| # | Idea | Why it matters | Effort |
+|---|---|---|---|
+| C1 | **Tutor mode.** `/learn`: litecode asks the student to try first, then gives hints in three levels, then the answer. | Helps people learn instead of copy. Few AI coding tools do this. | small |
+| C2 | **Offline docs packs.** Download Python, JavaScript, MDN and OWASP docs once, compressed. Keyword search feeds the model. | Exact API answers with no internet. Small models hallucinate APIs less with docs in context. | medium |
+| C3 | **Local-language answers.** STE-style simplified rules for Hindi, Bengali, Swahili and others, with code kept in English. | Many students read technical English slowly. | medium |
+| C4 | **CTF practice packs.** Offline vulnerable mini-apps with a scoring checker, run in a sandbox folder. | Security learning without internet or paid labs. | medium |
+
+## D. Sharing without internet
+
+| # | Idea | Why it matters | Effort |
+|---|---|---|---|
+| D1 | **Verified-fix packs.** Export fixes that passed tests as a small signed file. Share by USB or chat apps. Import checks the signature and re-runs the test before use. | A classroom builds a shared, trusted knowledge base offline. No other tool found does this. | medium |
+| D2 | **LAN model sharing.** One student downloads a model. Others copy it from that PC over the LAN, with hash check. | Saves mobile data, which costs real money in many regions. | small |
+| D3 | **Community tune reports.** `litecode tune --share` writes a small JSON of measured speeds per CPU. A public index turns it into "best model for your exact CPU". | Real numbers for each budget CPU, not guesses. | medium |
+
+## E. Trust and transparency
+
+| # | Idea | Why it matters | Effort |
+|---|---|---|---|
+| E1 | **Answer receipts.** Each answer can show: model, tokens, time, files read, commands run, tests passed. | The user sees exactly what the answer rests on. | small |
+| E2 | **Memory review.** `/memory review` lists what was learned this week, so the user approves or deletes it. | Learning stays under user control. | small |
+
+## Suggested order
+
+1. A1, A2, A3: cheap, and they make every task more reliable.
+2. B2, C1, E1: small, and they show the low-end-first identity.
+3. D1, B4, C2: the larger "classroom without internet" story that sets litecode apart.
+
+Built by Konko Maji.
+

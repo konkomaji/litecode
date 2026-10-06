@@ -1,12 +1,10 @@
 # litecode
 
-Run open-weight LLMs on any machine, from a 4GB laptop to a GPU workstation. litecode auto-detects your hardware, picks models that fit, and works fully offline from your terminal.
+**Local AI for coding and security, on any computer.** litecode is a free, open-source AI coding agent that runs on your own machine with open-weight models. It fixes bugs, adds features, runs your tests, and reviews code for security problems. It also writes, explains, and works with data. It works fully offline.
 
-It is a local coding and security assistant that behaves like a command-line coding agent, but it runs entirely on your own computer with open-weight models. No cloud, no API keys, no data leaving your machine.
+It adapts to the hardware: a 4 GB laptop with no GPU gets small, fast models; a 16 GB PC gets 8B-class models; a workstation with an NVIDIA GPU gets 30B-class models on the GPU. We test on a 2019 budget PC (Ryzen 3 3200G, 16 GB, no GPU) on purpose, so every machine above it runs litecode better.
 
-Built low-end first. The design target is a cheap PC with a slow CPU, little RAM, and a hard drive. On a stronger machine litecode simply scales up and loads larger, more capable models.
-
-Built by Konko Maji.
+Website and docs: [konkomaji.github.io/litecode](https://konkomaji.github.io/litecode/) · Built by Konko Maji.
 
 ## Why litecode
 
@@ -127,7 +125,7 @@ Built by Konko Maji.
 - X: [@konkomaji](https://x.com/konkomaji)
 - Website: [konkomaji.github.io/litecode](https://konkomaji.github.io/litecode/)
 
-Ideas and design: [IDEAS](docs/IDEAS.md), [DESIGN](docs/DESIGN.md).
+Ideas: [IDEAS](docs/IDEAS.md).
 
 ## License
 

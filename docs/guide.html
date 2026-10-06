@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>litecode guide - litecode docs</title>
+<meta name="description" content="Complete litecode guide: setup, interface, daily commands, memory, skills, MCP, security, speed tuning and file locations.">
+<meta name="author" content="Konko Maji">
+<link rel="canonical" href="https://konkomaji.github.io/litecode/guide.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="litecode">
+<meta property="og:title" content="litecode guide - litecode docs">
+<meta property="og:description" content="Complete litecode guide: setup, interface, daily commands, memory, skills, MCP, security, speed tuning and file locations.">
+<meta property="og:url" content="https://konkomaji.github.io/litecode/guide.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@konkomaji">
+<meta name="theme-color" content="#d4600a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "litecode guide", "description": "Complete litecode guide: setup, interface, daily commands, memory, skills, MCP, security, speed tuning and file locations.", "author": {"@type": "Person", "name": "Konko Maji", "email": "mailto:work.konkomaji@gmail.com", "url": "https://www.linkedin.com/in/konkomaji/", "sameAs": ["https://www.linkedin.com/in/konkomaji/", "https://x.com/konkomaji", "https://github.com/konkomaji"]}, "url": "https://konkomaji.github.io/litecode/guide.html", "isPartOf": {"@type": "WebSite", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}, "about": {"@type": "SoftwareApplication", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "litecode", "item": "https://konkomaji.github.io/litecode/"}, {"@type": "ListItem", "position": 2, "name": "Get started", "item": "https://konkomaji.github.io/litecode/guide.html"}, {"@type": "ListItem", "position": 3, "name": "litecode guide", "item": "https://konkomaji.github.io/litecode/guide.html"}]}]}</script>
+</head>
+<body>
+<a class="sr" href="#main">Skip to content</a>
+<header class="top"><div class="wrap"><a class="logo" href="./"><b>&gt;_</b>litecode</a><nav aria-label="Main"><a href="quickstart.html" aria-current="page">Docs</a><a href="benchmarks.html">Benchmarks</a><a href="faq.html">FAQ</a><a href="https://github.com/konkomaji/litecode">GitHub</a></nav><button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header><div class="wrap docs"><aside><button class="menu-btn" type="button" aria-expanded="false">Menu: all docs pages</button><nav class="side" aria-label="Documentation"><h4>Get started</h4><a href="quickstart.html">Quickstart</a><a href="guide.html" aria-current="page">User guide</a><a href="hardware.html">Hardware and models</a><a href="use-cases.html">Use cases</a><h4>Use litecode</h4><a href="commands.html">Commands</a><a href="security.html">Security review</a><a href="memory.html">Memory and learning</a><a href="skills.html">Skills</a><a href="mcp.html">MCP servers</a><a href="editors.html">Editor autocomplete</a><h4>Results</h4><a href="benchmarks.html">Benchmarks</a><h4>Help</h4><a href="faq.html">FAQ</a><a href="troubleshooting.html">Troubleshooting</a><h4>Project</h4><a href="roadmap.html">Ideas and roadmap</a></nav></aside><main id="main" class="prose"><div class="crumb">Get started</div><h1>litecode guide</h1>
+<p>litecode is a local AI coding and security assistant. It runs open-weight models on your own PC. It works offline after setup. Built by Konko Maji.</p>
+<p>Contents:</p>
+<ol><li>Requirements</li><li>Install</li><li>Setup</li><li>First run</li><li>The interface</li><li>Daily use</li><li>Memory and learning</li><li>Skills</li><li>MCP servers</li><li>Security work</li><li>Speed tuning</li><li>Files and folders</li><li>Customize the system prompt</li><li>Uninstall</li></ol>
+<p>Other pages: <a href="quickstart.html">Quickstart</a>, <a href="commands.html">Commands</a>, <a href="hardware.html">Hardware and models</a>, <a href="memory.html">Memory and learning</a>, <a href="skills.html">Skills</a>, <a href="mcp.html">MCP servers</a>, <a href="security.html">Security review</a>, <a href="editors.html">Editor autocomplete</a>, <a href="faq.html">FAQ</a>, <a href="troubleshooting.html">Troubleshooting</a>.</p>
+<hr>
+<h2 id="1-requirements">1. Requirements<a class="anchor" href="#1-requirements" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Item</th><th>Minimum</th><th>Better</th></tr></thead><tbody><tr><td>RAM</td><td>4 GB</td><td>16 GB</td></tr><tr><td>CPU</td><td>any x86-64 or ARM64</td><td>4+ cores with AVX2</td></tr><tr><td>Disk</td><td>3 GB free</td><td>15 GB free on an SSD</td></tr><tr><td>Python</td><td>3.10</td><td>3.12</td></tr><tr><td>GPU</td><td>not needed</td><td>Vulkan or CUDA GPU (optional)</td></tr></tbody></table>
+<p>litecode has no Python dependencies. It uses only the standard library.</p>
+<h2 id="2-install">2. Install<a class="anchor" href="#2-install" aria-label="Link to this section">#</a></h2>
+<p>Windows (PowerShell):</p>
+<pre><code>git clone https://github.com/konkomaji/litecode
+cd litecode
+.\install.ps1</code></pre>
+<p>Linux or macOS:</p>
+<pre><code>git clone https://github.com/konkomaji/litecode
+cd litecode
+./install.sh</code></pre>
+<p>Manual install: <code>pip install -e .</code> in the repo folder.</p>
+<p>If the <code>litecode</code> command is not found after install, add the Python scripts folder to PATH, or run <code>python -m litecode.cli</code>.</p>
+<h2 id="3-setup">3. Setup<a class="anchor" href="#3-setup" aria-label="Link to this section">#</a></h2>
+<p>Run:</p>
+<pre><code>litecode setup</code></pre>
+<p>The wizard does these steps:</p>
+<ol><li>It detects CPU, RAM, disks (SSD or HDD) and GPU.</li><li>It asks where to keep data. Data = cache, KV slots, scratchpad, memory, skills. Press Enter to use the default (<code>~/.litecode</code>).</li><li>It asks where to keep models. Models need several GB. Pick the disk with the most free space.</li><li>It asks if project memory goes in each project (<code>.litecode/</code> folder) or in the data folder.</li><li>It downloads the llama.cpp engine (30-80 MB) if no engine is found.</li><li>It recommends models that fit your RAM. It shows the download size and asks before it downloads.</li><li>It writes <code>~/.litecode/config.toml</code>.</li></ol>
+<p>Then run the tuner once (about 5 minutes):</p>
+<pre><code>litecode tune</code></pre>
+<p>The tuner measures thread counts and speculative decoding on your PC. It saves the fastest settings.</p>
+<p>To change a location later: run <code>litecode setup</code> again, or <code>litecode config data_dir D:/litecode-data</code>.</p>
+<h2 id="4-first-run">4. First run<a class="anchor" href="#4-first-run" aria-label="Link to this section">#</a></h2>
+<pre><code>cd my-project
+litecode init        # optional: creates LITECODE.md, a brief about the project
+litecode</code></pre>
+<p>The first model load takes 10-60 seconds on a hard drive. Later tasks reuse the loaded model.</p>
+<p>One task without the interactive screen:</p>
+<pre><code>litecode &quot;add a --json flag to main.py and update the tests&quot;</code></pre>
+<h2 id="5-the-interface">5. The interface<a class="anchor" href="#5-the-interface" aria-label="Link to this section">#</a></h2>
+<pre><code>+----------------------------------------------------------+
+| litecode 0.2.0  -  local AI coding assistant             |
+| Built by Konko Maji                                      |
++----------------------------------------------------------+
+  project  C:\code\my-project
+  models   code, fim, chat, security, quality
+  mode     ask   data D:/llm/data
+
+litecode&gt; fix the failing test in @tests/test_api.py
+  . read the test first
+  &gt; read_file {&quot;path&quot;: &quot;tests/test_api.py&quot;}
+  &lt; 1	import pytest
+  &gt; edit_file {&quot;path&quot;: &quot;api.py&quot;, &quot;find&quot;: &quot;...&quot;, &quot;replace&quot;: &quot;...&quot;}
+  allow edit_file?
+  - return a - b
+  + return a + b
+  [y]es / [n]o / [a]lways this session: y
+  &gt; run {&quot;cmd&quot;: &quot;python -m pytest -q&quot;}
+  &lt; (exit 0)
+
+The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+[code | ask | spec:ngram-simple | 412 tok | 38s]</code></pre>
+<p>Line types:</p>
+<table><thead><tr><th>Mark</th><th>Meaning</th></tr></thead><tbody><tr><td><code>.</code></td><td>model's short reasoning</td></tr><tr><td><code>&gt;</code></td><td>tool call</td></tr><tr><td><code>&lt;</code></td><td>first line of the tool result</td></tr><tr><td>red <code>-</code> / green <code>+</code></td><td>lines removed / added by an edit</td></tr><tr><td>last line</td><td>role, permission mode, speculative mode, tokens, seconds</td></tr></tbody></table>
+<p>The final answer streams live while the model writes it.</p>
+<p>Type <code>@path/to/file</code> in a message to attach that file. Press Ctrl+C to stop a task.</p>
+<h2 id="6-daily-use">6. Daily use<a class="anchor" href="#6-daily-use" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Goal</th><th>Type</th></tr></thead><tbody><tr><td>Ask or change code</td><td>plain text</td></tr><tr><td>Plan first, no edits</td><td><code>/plan add caching to the API</code></td></tr><tr><td>Run tests and fix</td><td><code>/test</code> or <code>/test npm test</code></td></tr><tr><td>Security review</td><td><code>/review src/</code></td></tr><tr><td>Fast static scan only</td><td><code>/scan</code></td></tr><tr><td>Commit message</td><td><code>/commit</code></td></tr><tr><td>Undo an edit</td><td><code>/undo path/file.py</code> (repeat to step back further)</td></tr><tr><td>See token use</td><td><code>/cost</code></td></tr><tr><td>Rate the last answer</td><td><code>/good</code> or <code>/bad</code></td></tr></tbody></table>
+<p>Permission modes (<code>/mode</code>):</p>
+<table><thead><tr><th>Mode</th><th>Behavior</th></tr></thead><tbody><tr><td><code>ask</code></td><td>litecode asks before each edit or command (default)</td></tr><tr><td><code>auto</code></td><td>no questions; same as <code>--yes</code></td></tr><tr><td><code>readonly</code></td><td>edits and commands are refused</td></tr></tbody></table>
+<p>All commands: <a href="commands.html">Commands</a>.</p>
+<h2 id="7-memory-and-learning">7. Memory and learning<a class="anchor" href="#7-memory-and-learning" aria-label="Link to this section">#</a></h2>
+<p>litecode records every session to disk automatically. It learns without retraining the model:</p>
+<ol><li>Preferences: if you write "always use type hints" or "don't add comments", litecode saves it. It applies to all projects.</li><li>Facts: when a session ends, the model writes short project facts (commands, conventions). A test command that passes is saved at once.</li><li>Examples: each finished task is stored. A similar task later gets the best past answer as an example. <code>/good</code> and <code>/bad</code> rate answers. Bad answers are never reused.</li></ol>
+<p>You can see and edit all of it: <code>/memory</code>, <code>/forget</code>, and the files listed in <a href="memory.html">Memory and learning</a>.</p>
+<p>Real fine-tuning: <code>litecode learn export data.jsonl</code> writes your rated history as a training set. Train a LoRA on a GPU machine. Set <code>lora</code> in config. Details in <a href="memory.html">Memory and learning</a>.</p>
+<h2 id="8-skills">8. Skills<a class="anchor" href="#8-skills" aria-label="Link to this section">#</a></h2>
+<p>A skill is a saved instruction pack, like a Claude Code skill. Built-in skills: <code>review</code>, <code>test-fix</code>, <code>explain</code>, <code>commit</code>, <code>refactor</code>, <code>skill-builder</code>.</p>
+<ul><li>Run one: <code>/review src/</code>, <code>/explain @utils.py</code>.</li><li>Make one step by step: <code>/skill new my-skill</code>.</li><li>Let the model draft one: <code>/skill make a skill that checks Django migrations</code>.</li><li>List: <code>/skills</code>.</li></ul>
+<p>Details: <a href="skills.html">Skills</a>.</p>
+<h2 id="9-mcp-servers">9. MCP servers<a class="anchor" href="#9-mcp-servers" aria-label="Link to this section">#</a></h2>
+<p>litecode connects to Model Context Protocol servers over stdio. It reads the same <code>.mcp.json</code> format as Claude Code.</p>
+<pre><code>litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
+litecode mcp            # list servers</code></pre>
+<p>Inside a session, <code>/mcp</code> lists the tools. Details: <a href="mcp.html">MCP servers</a>.</p>
+<p>Warning: small models handle few tools well. Add only the servers you need.</p>
+<h2 id="10-security-work">10. Security work<a class="anchor" href="#10-security-work" aria-label="Link to this section">#</a></h2>
+<ul><li><code>/scan</code> runs static rules with no model. If Semgrep or Bandit is installed, litecode uses them too.</li><li><code>/review</code> scans, then the model gives a verdict for each finding: real or false positive, severity, reason, fix.</li><li>Reports are saved in <code>.litecode/reviews/</code>.</li><li>The setup can install an official security model (Foundation-Sec-8B or WhiteRabbitNeo). Security tasks route to it.</li></ul>
+<p>Use security features only on code and systems you own or have permission to test.</p>
+<h2 id="11-speed-tuning">11. Speed tuning<a class="anchor" href="#11-speed-tuning" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Setting</th><th>Effect</th></tr></thead><tbody><tr><td><code>litecode tune</code></td><td>picks threads and speculative mode by measurement</td></tr><tr><td><code>kv_persist = true</code></td><td>saves the prompt cache per project; next start skips reprocessing</td></tr><tr><td><code>speculative = "auto"</code></td><td>n-gram drafting for code roles; it speeds up edits that repeat text</td></tr><tr><td><code>ctx = 8192</code></td><td>smaller context = less RAM, faster</td></tr><tr><td><code>gpu_layers = 99</code></td><td>with a Vulkan or CUDA engine build, moves layers to the GPU</td></tr><tr><td>models on SSD</td><td>load time drops from about 30 s to about 5 s</td></tr></tbody></table>
+<p>Generation speed depends mostly on RAM bandwidth. Two RAM sticks (dual channel) are about 2x faster than one.</p>
+<h2 id="12-files-and-folders">12. Files and folders<a class="anchor" href="#12-files-and-folders" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Path</th><th>Content</th></tr></thead><tbody><tr><td><code>~/.litecode/config.toml</code></td><td>settings</td></tr><tr><td><code>&lt;data_dir&gt;/profile.jsonl</code></td><td>your preferences (all projects)</td></tr><tr><td><code>&lt;data_dir&gt;/learn/examples.jsonl</code></td><td>finished tasks with ratings</td></tr><tr><td><code>&lt;data_dir&gt;/slots/</code></td><td>saved prompt caches</td></tr><tr><td><code>&lt;data_dir&gt;/scratch/</code></td><td>scratchpad files</td></tr><tr><td><code>&lt;data_dir&gt;/skills/</code></td><td>your user skills</td></tr><tr><td><code>&lt;data_dir&gt;/mcp.json</code></td><td>your MCP servers</td></tr><tr><td><code>&lt;data_dir&gt;/bench/</code></td><td>tune reports</td></tr><tr><td><code>&lt;project&gt;/LITECODE.md</code></td><td>project brief (you edit it)</td></tr><tr><td><code>&lt;project&gt;/.litecode/</code></td><td>project facts, sessions, summaries, checkpoints, reviews, project skills</td></tr></tbody></table>
+<h2 id="13-customize-the-system-prompt">13. Customize the system prompt<a class="anchor" href="#13-customize-the-system-prompt" aria-label="Link to this section">#</a></h2>
+<p>litecode ships <code>litecode/SYSTEM.md</code>. It holds the tool protocol and the answer style rules (ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler).</p>
+<p>To change it, copy it to <code>&lt;data_dir&gt;/SYSTEM.md</code> and edit the copy. Keep the <code>{spec}</code> line: litecode puts the tool list there.</p>
+<h2 id="14-uninstall">14. Uninstall<a class="anchor" href="#14-uninstall" aria-label="Link to this section">#</a></h2>
+<ol><li><code>pip uninstall litecode</code></li><li>Delete <code>~/.litecode</code> and your data and models folders.</li><li>Delete <code>.litecode/</code> folders in your projects.</li></ol>
+<div class="pager"><a href="quickstart.html"><span>Previous</span><b>Quickstart</b></a><a class="next" href="hardware.html"><span>Next</span><b>Hardware and models</b></a></div><p class="edit">Source: <a href="https://github.com/konkomaji/litecode/blob/main/docs/GUIDE.md">docs/GUIDE.md</a></p></main><nav class="toc" aria-label="On this page"><div class="label">On this page</div><a class="l2" href="#1-requirements">1. Requirements</a><a class="l2" href="#2-install">2. Install</a><a class="l2" href="#3-setup">3. Setup</a><a class="l2" href="#4-first-run">4. First run</a><a class="l2" href="#5-the-interface">5. The interface</a><a class="l2" href="#6-daily-use">6. Daily use</a><a class="l2" href="#7-memory-and-learning">7. Memory and learning</a><a class="l2" href="#8-skills">8. Skills</a><a class="l2" href="#9-mcp-servers">9. MCP servers</a><a class="l2" href="#10-security-work">10. Security work</a><a class="l2" href="#11-speed-tuning">11. Speed tuning</a><a class="l2" href="#12-files-and-folders">12. Files and folders</a><a class="l2" href="#13-customize-the-system-prompt">13. Customize the system prompt</a><a class="l2" href="#14-uninstall">14. Uninstall</a></nav></div><footer><div class="wrap foot"><div><div class="credit">Built by <em>Konko Maji</em></div><p style="color:var(--ink-2);max-width:32em">litecode is a free, open-source (MIT) AI assistant for coding and security that runs on your own computer, from a 4 GB laptop to a GPU workstation.</p><p class="fine">© 2026 Konko Maji · MIT License</p></div><ul class="links" aria-label="Contact and links"><li><a href="mailto:work.konkomaji@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v14H2zm2 2v.4l8 5.2 8-5.2V7zm16 2.8-8 5.2-8-5.2V17h16z"/></svg>work.konkomaji@gmail.com</a></li><li><a href="https://github.com/konkomaji/litecode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>github.com/konkomaji/litecode</a></li><li><a href="https://www.linkedin.com/in/konkomaji/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/></svg>linkedin.com/in/konkomaji</a></li><li><a href="https://x.com/konkomaji"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4zm-1.2 17.9h1.9L7 4.2H5z"/></svg>@konkomaji</a></li></ul></div></footer><script src="assets/site.js" defer></script>
+</body>
+</html>

@@ -3,144 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>litecode: local AI coding on the PC you have</title>
-<meta name="description" content="litecode runs open-weight AI models for coding and security review on low-end PCs. Offline, free, private. Built by Konko Maji.">
-<meta property="og:title" content="litecode: local AI coding on the PC you have">
-<meta property="og:description" content="Offline AI coding and security assistant tuned for 4-16 GB PCs. Built by Konko Maji.">
+<title>litecode - local AI coding and security assistant for any computer</title>
+<meta name="description" content="litecode is a free, open-source AI coding and security agent that runs on your own computer, from a 4 GB laptop without GPU to a GPU workstation. Offline and private. Also writes, explains and analyzes data. Built by Konko Maji.">
+<meta name="author" content="Konko Maji">
+<meta name="keywords" content="local AI coding assistant, offline AI coding agent, run LLM without GPU, AI on low-end PC, open-source coding agent, llama.cpp, security code review AI, private AI assistant">
+<link rel="canonical" href="https://konkomaji.github.io/litecode/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="litecode">
+<meta property="og:title" content="litecode - local AI coding and security assistant for any computer">
+<meta property="og:description" content="Open-source AI coding agent that runs offline on your own machine, from a 4 GB laptop to a GPU workstation. Built by Konko Maji.">
+<meta property="og:url" content="https://konkomaji.github.io/litecode/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@konkomaji">
+<meta name="twitter:creator" content="@konkomaji">
 <meta name="theme-color" content="#d4600a">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
-<style>
-:root{
-  --paper:#f3efe4;--ink:#1c1a15;--ink-2:#5c574b;--rule:#d9d2c0;--plate:#fbf9f3;
-  --signal:#d4600a;--ok:#2f7a4b;--warn:#a33b2b;--term:#1c1a15;--term-ink:#ebe5d5;
-  --mono:ui-monospace,"Cascadia Mono","SF Mono",Consolas,"Liberation Mono",monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#12110e;--ink:#ebe5d5;--ink-2:#a39d8c;--rule:#2b2922;--plate:#1a1914;
-  --signal:#ff8a3d;--ok:#5cc58a;--warn:#ff6b5b;--term:#0b0a08;--term-ink:#ebe5d5}}
-:root[data-theme="dark"]{
-  --paper:#12110e;--ink:#ebe5d5;--ink-2:#a39d8c;--rule:#2b2922;--plate:#1a1914;
-  --signal:#ff8a3d;--ok:#5cc58a;--warn:#ff6b5b;--term:#0b0a08;--term-ink:#ebe5d5}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--sans);
-  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
-  background-size:24px 24px;background-attachment:fixed}
-body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.82;z-index:-1}
-a{color:inherit;text-decoration-color:var(--signal);text-underline-offset:3px}
-a:hover{color:var(--signal)}
-:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
-.mono{font-family:var(--mono)}
-.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.label{font:600 12px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
-.signal{color:var(--signal)}
-/* nav */
-header.top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
-header.top .wrap{display:flex;align-items:center;gap:16px;height:56px}
-.logo{font:700 18px var(--mono);text-decoration:none;display:flex;align-items:center;gap:8px}
-.logo b{color:var(--signal)}
-nav{margin-left:auto;display:flex;gap:18px;font:14px var(--mono)}
-nav a{text-decoration:none;color:var(--ink-2)}
-.theme{border:1px solid var(--rule);background:var(--plate);color:var(--ink);font:13px var(--mono);padding:6px 10px;border-radius:3px;cursor:pointer}
-@media (max-width:720px){nav a.opt{display:none}}
-/* hero */
-.hero{padding:64px 0 40px;display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
-@media (max-width:900px){.hero{grid-template-columns:1fr;padding-top:40px}}
-h1{font:700 clamp(32px,6vw,52px)/1.08 var(--mono);letter-spacing:-.02em;margin:12px 0 18px}
-h1 em{font-style:normal;color:var(--signal)}
-.lede{font-size:19px;color:var(--ink-2);max-width:34em;margin:0 0 24px}
-.cta{display:flex;flex-wrap:wrap;gap:12px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;font:600 15px var(--mono);border-radius:3px;text-decoration:none;border:2px solid var(--ink)}
-.btn.primary{background:var(--signal);border-color:var(--signal);color:#fff}
-.btn.primary:hover{color:#fff;filter:brightness(1.08)}
-.stamp{display:inline-block;font:700 11px var(--mono);letter-spacing:.16em;color:var(--signal);border:2px solid var(--signal);padding:3px 8px;transform:rotate(-3deg);border-radius:2px}
-.stamp.ok{color:var(--ok);border-color:var(--ok)}
-.stamp.est{color:var(--ink-2);border-color:var(--ink-2)}
-/* terminal */
-.term{background:var(--term);color:var(--term-ink);border-radius:6px;font:13.5px/1.55 var(--mono);box-shadow:0 1px 0 var(--rule),0 18px 40px -20px rgba(0,0,0,.45);overflow:hidden}
-.term .bar{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #2b2922;color:#8d8778;font-size:12px}
-.term .bar i{width:10px;height:10px;border-radius:50%;background:#3a372e;display:inline-block}
-.term pre{margin:0;padding:14px 16px 18px;white-space:pre-wrap;word-break:break-word}
-.t-dim{color:#8d8778}.t-sig{color:#ff8a3d}.t-ok{color:#5cc58a}.t-bad{color:#ff6b5b}.t-cy{color:#7fc7d9}.t-mag{color:#d79ce6}
-@media (prefers-reduced-motion:no-preference){
-  .term pre span.l{opacity:0;animation:in .01s forwards}
-  @keyframes in{to{opacity:1}}
-}
-/* plates */
-section{padding:56px 0;border-top:1px solid var(--rule)}
-h2{font:700 clamp(24px,4vw,32px)/1.2 var(--mono);margin:8px 0 12px;letter-spacing:-.01em}
-.sub{color:var(--ink-2);max-width:40em;margin:0 0 28px}
-.plates{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.plate{position:relative;background:var(--plate);border:1px solid var(--rule);border-radius:3px;padding:18px 18px 16px}
-.plate::before,.plate::after,.plate>.rv::before,.plate>.rv::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:var(--rule);box-shadow:inset 0 0 0 1px var(--ink-2)}
-.plate::before{top:7px;left:7px}.plate::after{top:7px;right:7px}
-.plate>.rv::before{bottom:7px;left:7px}.plate>.rv::after{bottom:7px;right:7px}
-.plate .v{font:700 34px/1.1 var(--mono);font-variant-numeric:tabular-nums;color:var(--signal);margin:8px 0 4px}
-.plate .v small{font-size:15px;color:var(--ink-2);font-weight:600}
-.plate p{margin:0;font-size:14px;color:var(--ink-2)}
-.ref{margin-top:14px;font:13px var(--mono);color:var(--ink-2)}
-/* steps */
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;border:1px solid var(--rule);background:var(--plate);counter-reset:s}
-.steps div{padding:20px;border-right:1px solid var(--rule);counter-increment:s}
-.steps div:last-child{border-right:0}
-@media (max-width:900px){.steps div{border-right:0;border-bottom:1px solid var(--rule)}}
-.steps div::before{content:"0" counter(s);font:700 13px var(--mono);color:var(--signal)}
-.steps h3{font:700 17px var(--mono);margin:6px 0}
-.steps p{margin:0;font-size:15px;color:var(--ink-2)}
-/* ram bars */
-.tiers{display:grid;gap:14px}
-.tier{display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:center}
-.tier .ram{font:700 15px var(--mono)}
-.bar-ram{position:relative;height:38px;border:1px solid var(--ink-2);border-radius:2px;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/16 - 1px),var(--rule) calc(100%/16 - 1px),var(--rule) calc(100%/16));display:flex;overflow:hidden}
-.blk{height:100%;display:flex;align-items:center;padding:0 8px;font:600 12px var(--mono);color:#fff;white-space:nowrap;overflow:hidden;border-right:2px solid var(--paper)}
-.blk.os{background:repeating-linear-gradient(45deg,var(--ink-2) 0 4px,transparent 4px 8px);color:var(--ink);font-weight:700}
-.blk.m1{background:var(--signal)}.blk.m2{background:var(--ok)}.blk.m3{background:#6a5acd}
-@media (max-width:560px){.tier{grid-template-columns:1fr}.blk{font-size:10px;padding:0 4px}}
-/* features */
-.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.feat article{background:var(--plate);border:1px solid var(--rule);border-radius:3px;padding:20px}
-.feat h3{font:700 16px var(--mono);margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
-.feat h3 span{color:var(--signal)}
-.feat p{margin:0;font-size:15px;color:var(--ink-2)}
-.feat code,.sub code,li code{font:13px var(--mono);background:var(--paper);border:1px solid var(--rule);padding:1px 5px;border-radius:2px;color:var(--ink)}
-/* install */
-.install{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media (max-width:820px){.install{grid-template-columns:1fr}}
-.code{position:relative;background:var(--term);color:var(--term-ink);border-radius:4px;font:14px/1.6 var(--mono);padding:16px 16px 16px}
-.code .label{color:#8d8778;display:block;margin-bottom:6px}
-.code pre{margin:0;white-space:pre-wrap;word-break:break-all}
-.copy{position:absolute;top:10px;right:10px;font:12px var(--mono);background:#2b2922;color:#ebe5d5;border:0;padding:4px 8px;border-radius:2px;cursor:pointer}
-/* principles */
-.princ{list-style:none;padding:0;margin:0;display:grid;gap:0;border-top:1px solid var(--rule)}
-.princ li{display:grid;grid-template-columns:56px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--rule)}
-.princ b{font:700 22px var(--mono);color:var(--signal)}
-.princ strong{display:block;font:700 16px var(--mono)}
-.princ span{color:var(--ink-2);font-size:15px}
-/* footer */
-footer{border-top:2px solid var(--ink);padding:40px 0 56px;background:var(--plate)}
-.foot{display:grid;grid-template-columns:1.2fr 1fr;gap:32px}
-@media (max-width:760px){.foot{grid-template-columns:1fr}}
-.credit{font:700 22px var(--mono)}
-.credit em{font-style:normal;color:var(--signal)}
-.links{list-style:none;margin:0;padding:0;display:grid;gap:10px;font:15px var(--mono)}
-.links a{display:flex;gap:10px;align-items:center;text-decoration:none}
-.links svg{width:18px;height:18px;flex:none;fill:currentColor}
-.fine{margin-top:24px;font:13px var(--mono);color:var(--ink-2)}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-</style>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"SoftwareApplication","name":"litecode","url":"https://konkomaji.github.io/litecode/","applicationCategory":"DeveloperApplication","applicationSubCategory":"AI coding assistant","operatingSystem":"Windows, Linux, macOS","softwareVersion":"0.2.0","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"downloadUrl":"https://github.com/konkomaji/litecode","codeRepository":"https://github.com/konkomaji/litecode","description":"Open-source AI coding and security agent that runs locally with open-weight models. Adapts to the hardware, from a 4 GB laptop without GPU to a GPU workstation. Works offline. Also helps with writing, study and data tasks.","featureList":["Local tool-using coding agent","Offline security review with static scan and model verdicts","Automatic memory and learning from use","Skills (SKILL.md) and MCP client","Hardware detection and speed autotune","CPU, CUDA, Vulkan and Metal support"],"author":{"@id":"#konko"}},
+{"@type":"Person","@id":"#konko","name":"Konko Maji","email":"mailto:work.konkomaji@gmail.com","url":"https://www.linkedin.com/in/konkomaji/","sameAs":["https://www.linkedin.com/in/konkomaji/","https://x.com/konkomaji","https://github.com/konkomaji"]},
+{"@type":"WebSite","name":"litecode","url":"https://konkomaji.github.io/litecode/","publisher":{"@id":"#konko"}}
+]}
+</script>
 </head>
 <body>
 <a class="sr" href="#main">Skip to content</a>
 <header class="top"><div class="wrap">
-  <a class="logo" href="#"><b>&gt;_</b>litecode</a>
+  <a class="logo" href="./"><b>&gt;_</b>litecode</a>
   <nav aria-label="Main">
-    <a class="opt" href="#proof">Numbers</a>
-    <a class="opt" href="#features">Features</a>
-    <a class="opt" href="#principles">Principles</a>
-    <a href="#install">Install</a>
+    <a href="quickstart.html">Docs</a>
+    <a href="benchmarks.html">Benchmarks</a>
+    <a class="opt" href="faq.html">FAQ</a>
     <a href="https://github.com/konkomaji/litecode">GitHub</a>
   </nav>
   <button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button>
@@ -149,16 +44,16 @@ footer{border-top:2px solid var(--ink);padding:40px 0 56px;background:var(--plat
 <main id="main">
 <div class="wrap hero">
   <div>
-    <span class="stamp">OFFLINE · FREE · PRIVATE</span>
-    <h1>AI coding on the PC <em>you already have.</em></h1>
-    <p class="lede">litecode runs open-weight AI models on your own computer. It reads, fixes and reviews code from your terminal. It needs no GPU, no cloud and no API key. It is built for 4-16 GB PCs first.</p>
+    <span class="stamp">OFFLINE · OPEN SOURCE · ANY HARDWARE</span>
+    <h1>Local AI for coding and security. <em>On any computer.</em></h1>
+    <p class="lede">litecode is an AI coding agent that runs on your own machine. It fixes bugs, adds features, runs tests and reviews security. It also writes, explains and works with data. It fits a 4 GB laptop with no GPU, and it scales up to a GPU workstation with 30B-class models.</p>
     <div class="cta">
-      <a class="btn primary" href="#install">Install litecode</a>
-      <a class="btn" href="https://github.com/konkomaji/litecode">View source</a>
+      <a class="btn primary" href="quickstart.html">Get started</a>
+      <a class="btn" href="benchmarks.html">See the benchmarks</a>
     </div>
   </div>
   <div class="term" role="img" aria-label="litecode fixes a bug: it reads the file, edits one line, runs the test, and reports the result.">
-    <div class="bar"><i></i><i></i><i></i>&nbsp; litecode · ryzen 3 3200g · 16 GB · hdd</div>
+    <div class="bar"><i></i><i></i><i></i>&nbsp; litecode · ryzen 3 3200g · 16 GB · no gpu</div>
 <pre><span class="l" style="animation-delay:.2s"><span class="t-sig">litecode&gt;</span> fix the bug so python test_calc.py prints ok</span>
 <span class="l t-dim" style="animation-delay:.9s">litecode: loading MiniCPM5-2B (role=code, speculative=ngram-simple)</span>
 <span class="l" style="animation-delay:1.6s"><span class="t-cy">  &gt; read_file</span> <span class="t-dim">{"path": "calc.py"}</span></span>
@@ -175,80 +70,94 @@ line 2 to return a + b. The test passes.</span>
   </div>
 </div>
 
+<section id="work"><div class="wrap">
+  <span class="label">What it does</span>
+  <h2>Built for code and security. Useful for everything else.</h2>
+  <p class="sub">The main focus is coding and security review. The same local models also write, explain and analyze, so one tool covers most daily work.</p>
+  <div class="feat">
+    <article><h3><span>MAIN</span>Coding</h3><p>Fix bugs across files, add features with tests, refactor safely, explain code, write commit messages. <code>/test</code> runs your tests and fixes failures.</p></article>
+    <article><h3><span>MAIN</span>Security</h3><p>Static scan with zero model tokens, then a 4-line verdict per finding. SQL injection, XSS, command injection, path traversal, secrets. <a href="security.html">How it works</a>.</p></article>
+    <article><h3><span>ALSO</span>Writing</h3><p>Emails, summaries, READMEs, API docs and reports in plain, short sentences that are easy to read in a second language.</p></article>
+    <article><h3><span>ALSO</span>Study</h3><p>Ask about concepts, learn a codebase, practice offline. No internet and no data charges after setup.</p></article>
+    <article><h3><span>ALSO</span>Data</h3><p>CSV reports, JSON config edits, log analysis. litecode writes the script and runs it to check the result.</p></article>
+    <article><h3><span>ALSO</span>Your tools</h3><p>Connect MCP servers and save your own workflows as skills. Same formats as Claude Code. <a href="use-cases.html">All use cases</a>.</p></article>
+  </div>
+</div></section>
+
 <section id="proof"><div class="wrap">
   <span class="label">Measured, not claimed</span>
-  <h2>Numbers from a 2019 budget PC</h2>
-  <p class="sub">Every number below comes from one real machine: AMD Ryzen 3 3200G (4 cores), 16 GB DDR4-2133, no usable GPU, models on a hard drive.</p>
+  <h2>Proven on a 2019 budget PC</h2>
+  <p class="sub">We test on a weak machine on purpose: AMD Ryzen 3 3200G (4 cores), 16 GB DDR4-2133, no usable GPU, models on a hard drive. If litecode works here, it works better on yours.</p>
   <div class="plates">
-    <div class="plate"><span class="rv"></span><span class="label">Generation speed</span><div class="v">15.2 <small>tok/s</small></div><p>MiniCPM5-2B, Q4_K_M, CPU only</p></div>
-    <div class="plate"><span class="rv"></span><span class="label">Coding tasks</span><div class="v">8/8 <small>pass</small></div><p>Functions run against assert tests</p></div>
-    <div class="plate"><span class="rv"></span><span class="label">Vulnerability classes</span><div class="v">10/10 <small>found</small></div><p>SQLi, XSS, path traversal, deserialization and more</p></div>
-    <div class="plate"><span class="rv"></span><span class="label">Model size</span><div class="v">1.6 <small>GB</small></div><p>Fits next to a browser on 4 GB</p></div>
-    <div class="plate"><span class="rv"></span><span class="label">Autocomplete</span><div class="v">19.9 <small>tok/s</small></div><p>Qwen2.5-Coder-1.5B, stays loaded</p></div>
-    <div class="plate"><span class="rv"></span><span class="label">Cloud calls</span><div class="v">0</div><p>After setup, nothing leaves the PC</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">Generation speed</span><div class="v">15.2 <small>tok/s</small></div><p>MiniCPM5-2B, CPU only</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">8B-class speed</span><div class="v">13.2 <small>tok/s</small></div><p>LFM2.5-8B-A1B (MoE), CPU only</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">Coding tasks</span><div class="v">8/8 <small>pass</small></div><p>MiniCPM5-2B, LFM2.5-8B-A1B, Gemma-4-E4B</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">Vulnerability classes</span><div class="v">10/10 <small>found</small></div><p>MiniCPM5-2B, Qwen3.5-4B, Gemma-4-E4B, Llama-3.2-3B</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">Security review</span><div class="v">40 <small>s</small></div><p>Scan + verdicts for 2 findings, incl. model load</p></div>
+    <div class="plate"><span class="rv"></span><span class="label">Cloud calls</span><div class="v">0</div><p>After setup, nothing leaves the machine</p></div>
   </div>
-  <p class="ref"><span class="stamp ok">MEASURED</span> &nbsp;llama.cpp CPU build, 4 threads. Results vary by machine. Run <code>litecode tune</code> to measure yours.</p>
+  <p class="ref"><span class="stamp ok">MEASURED</span> &nbsp;llama.cpp CPU build, 4 threads. Full tables and 30 agent challenges: <a href="benchmarks.html">Benchmarks</a>.</p>
+</div></section>
+
+<section><div class="wrap">
+  <span class="label">Any hardware</span>
+  <h2>It fits the model to the machine</h2>
+  <p class="sub">litecode reads your RAM, CPU, disk and GPU, then picks models that fit. Small machines get small, fast models. Big machines and GPUs get bigger, stronger ones.</p>
+  <div class="tiers">
+    <div class="tier"><span class="ram">4 GB</span><div class="bar-ram"><div class="blk os" style="width:45%">system</div><div class="blk m1" style="width:37%">Qwen2.5-Coder-1.5B</div><div class="blk m2" style="width:18%">fim 0.5B</div></div></div>
+    <div class="tier"><span class="ram">8 GB</span><div class="bar-ram"><div class="blk os" style="width:40%">system</div><div class="blk m1" style="width:29%">MiniCPM5-2B</div><div class="blk m2" style="width:19%">fim 1.5B</div></div></div>
+    <div class="tier"><span class="ram">16 GB</span><div class="bar-ram"><div class="blk os" style="width:40%">system</div><div class="blk m1" style="width:38%">LFM2.5-8B-A1B</div><div class="blk m2" style="width:10%">fim</div></div></div>
+    <div class="tier"><span class="ram">32 GB</span><div class="bar-ram"><div class="blk os" style="width:40%">system</div><div class="blk m1" style="width:19%">LFM2.5-8B</div><div class="blk m3" style="width:21%">Qwen3.5-9B quality</div><div class="blk m2" style="width:5%">fim</div></div></div>
+    <div class="tier"><span class="ram">GPU 24 GB</span><div class="bar-ram"><div class="blk m3" style="width:98%">Qwen3.6-35B-A3B on the GPU (30B-class MoE)</div></div></div>
+  </div>
+  <p class="ref"><span class="stamp est">ESTIMATE</span> &nbsp;RAM or VRAM use at Q4 with a small KV cache, from the litecode catalog. Any GGUF model works. <a href="hardware.html">Hardware guide</a>.</p>
 </div></section>
 
 <section><div class="wrap">
   <span class="label">How it works</span>
-  <h2>It fits the model to the machine</h2>
-  <p class="sub">Other tools ask you to pick a model. litecode measures your PC first.</p>
+  <h2>Five steps, all on your machine</h2>
   <div class="steps">
-    <div><h3>Detect</h3><p>It reads CPU, cores, RAM, disk type and GPU.</p></div>
-    <div><h3>Recommend</h3><p>It picks models that fit your RAM, with room for your other programs.</p></div>
-    <div><h3>Ask</h3><p>It shows the download size. It downloads only after you agree.</p></div>
-    <div><h3>Tune</h3><p>It measures threads and decoding modes, then keeps the fastest.</p></div>
-    <div><h3>Work</h3><p>It reads, edits and tests code. You approve every change.</p></div>
+    <div><h3>Detect</h3><p>It reads CPU, RAM, disk type, GPU and VRAM.</p></div>
+    <div><h3>Recommend</h3><p>It picks models that fit, with room for your other programs.</p></div>
+    <div><h3>Ask</h3><p>It shows the download size and downloads only after you agree.</p></div>
+    <div><h3>Tune</h3><p>It measures threads and decoding modes and keeps the fastest.</p></div>
+    <div><h3>Work</h3><p>It reads, edits and tests your code. You approve every change.</p></div>
   </div>
-</div></section>
-
-<section><div class="wrap">
-  <span class="label">Hardware tiers</span>
-  <h2>What fits in your RAM</h2>
-  <p class="sub">Each bar is the full RAM of a machine. Striped space is kept free for the system. Colored blocks are the models litecode loads.</p>
-  <div class="tiers">
-    <div class="tier"><span class="ram">4 GB</span><div class="bar-ram" style="--n:4"><div class="blk os" style="width:40%">system</div><div class="blk m1" style="width:42%">MiniCPM5-2B</div><div class="blk m2" style="width:18%">fim 0.5B</div></div></div>
-    <div class="tier"><span class="ram">8 GB</span><div class="bar-ram"><div class="blk os" style="width:35%">system</div><div class="blk m1" style="width:45%">Qwen3.5-4B</div><div class="blk m2" style="width:19%">fim 1.5B</div></div></div>
-    <div class="tier"><span class="ram">16 GB</span><div class="bar-ram"><div class="blk os" style="width:36%">system</div><div class="blk m1" style="width:14%">MiniCPM5-2B</div><div class="blk m2" style="width:10%">fim</div><div class="blk m3" style="width:40%">quality or security 8-9B (on demand)</div></div></div>
-    <div class="tier"><span class="ram">32 GB+</span><div class="bar-ram"><div class="blk os" style="width:26%">system</div><div class="blk m3" style="width:70%">30B-class MoE (Qwen3.6-35B-A3B)</div></div></div>
-  </div>
-  <p class="ref"><span class="stamp est">ESTIMATE</span> &nbsp;RAM use at Q4 with a small KV cache, from the litecode catalog.</p>
 </div></section>
 
 <section id="features"><div class="wrap">
   <span class="label">Features</span>
-  <h2>A full coding agent, sized for small models</h2>
-  <p class="sub">Small models make more mistakes. litecode adds structure so they stay on track: strict tool protocol, grammar-forced output, tests after every change.</p>
+  <h2>A full coding agent that stays on track</h2>
+  <p class="sub">Small models make more mistakes, and big models cost time. litecode adds structure to both: a strict tool protocol, grammar-forced output, and tests after every change.</p>
   <div class="feat">
-    <article><h3><span>01</span>Agent with tools</h3><p>Read, search, exact-replace edits with a diff preview, run commands, git. Modes: <code>ask</code>, <code>auto</code>, <code>readonly</code>. <code>/undo</code> any edit.</p></article>
-    <article><h3><span>02</span>Memory that grows</h3><p>Every session is saved to disk. "Always use type hints" is remembered for all projects. Past answers rated <code>/good</code> come back as examples.</p></article>
-    <article><h3><span>03</span>Security review</h3><p>Static rules find suspects with zero model tokens. The model then gives a 4-line verdict per finding: real or false positive, severity, reason, fix.</p></article>
-    <article><h3><span>04</span>Skills</h3><p>Save a workflow as a <code>SKILL.md</code> with numbered steps. Run it with <code>/name</code>. Let the model draft one with <code>/skill make</code>.</p></article>
-    <article><h3><span>05</span>MCP client</h3><p>Connect Model Context Protocol servers. Same <code>.mcp.json</code> format as Claude Code.</p></article>
-    <article><h3><span>06</span>Speed tricks</h3><p>Prompt cache saved per project. N-gram speculative decoding. One server slot. Quantized KV cache. <code>litecode tune</code> picks by measurement.</p></article>
-    <article><h3><span>07</span>Plain answers</h3><p>Answers follow ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler. Fewer tokens, faster on slow CPUs.</p></article>
-    <article><h3><span>08</span>Test-fix loop</h3><p><code>/test</code> runs your tests. If they fail, litecode reads the error, fixes the code and runs them again.</p></article>
+    <article><h3><span>01</span>Agent with tools</h3><p>Read, search, exact edits with a diff preview, run commands, git. Modes: <code>ask</code>, <code>auto</code>, <code>readonly</code>. <code>/undo</code> any edit.</p></article>
+    <article><h3><span>02</span>Memory that grows</h3><p>Every session is saved to disk. Your preferences apply to all projects. Rated answers come back as examples. <a href="memory.html">Details</a>.</p></article>
+    <article><h3><span>03</span>Skills</h3><p>Save a workflow as a <code>SKILL.md</code>. Run it with <code>/name</code>. Let the model draft one with <code>/skill make</code>.</p></article>
+    <article><h3><span>04</span>MCP client</h3><p>Connect Model Context Protocol servers. Same <code>.mcp.json</code> format as Claude Code.</p></article>
+    <article><h3><span>05</span>Speed on any machine</h3><p>Prompt cache saved per project, n-gram speculative decoding, GPU offload, and <code>litecode tune</code> to pick by measurement.</p></article>
+    <article><h3><span>06</span>Plain answers</h3><p>Answers follow ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler.</p></article>
+    <article><h3><span>07</span>Plan mode</h3><p><code>/plan</code> inspects without editing and gives numbered steps. You approve, then it runs them.</p></article>
+    <article><h3><span>08</span>Benchmark yourself</h3><p><code>litecode eval</code> runs 30 real tasks in 3 levels and scores each model on your machine.</p></article>
     <article><h3><span>09</span>Editor autocomplete</h3><p><code>litecode fim</code> serves fill-in-the-middle completion. A small VS Code extension is included.</p></article>
   </div>
 </div></section>
 
-<section id="principles"><div class="wrap">
-  <span class="label">Design principles</span>
-  <h2>Built low-end first</h2>
+<section id="faq"><div class="wrap">
+  <span class="label">Quick answers</span>
+  <h2>Common questions</h2>
   <ul class="princ">
-    <li><b>1</b><div><strong>Every byte earns its place</strong><span>This page is under 50 KB. litecode has zero Python dependencies.</span></div></li>
-    <li><b>2</b><div><strong>Numbers, not adjectives</strong><span>Each claim names the machine it was measured on. Estimates are marked.</span></div></li>
-    <li><b>3</b><div><strong>Plain words</strong><span>Short sentences. One meaning per word. Readable for second-language English speakers.</span></div></li>
-    <li><b>4</b><div><strong>Works on the worst device</strong><span>Offline after setup. Hard drive friendly. No GPU needed.</span></div></li>
-    <li><b>5</b><div><strong>You stay in control</strong><span>litecode asks before downloads, edits and commands. Your memory is plain files you can read.</span></div></li>
+    <li><b>?</b><div><strong>Can I run an AI coding assistant without a GPU?</strong><span>Yes. litecode runs on CPU only. A 2019 Ryzen 3 with 16 GB RAM generates about 15 tokens per second with the default 2B model.</span></div></li>
+    <li><b>?</b><div><strong>Does it use my GPU if I have one?</strong><span>Yes. Setup installs the CUDA or Vulkan engine and moves the model to the GPU. With 24 GB of VRAM it runs 30B-class models.</span></div></li>
+    <li><b>?</b><div><strong>Is my code sent anywhere?</strong><span>No. After setup litecode makes no network calls. Code, prompts and memory stay on your disk as plain files.</span></div></li>
+    <li><b>?</b><div><strong>Is it only for coding?</strong><span>Coding and security come first. It also writes emails, summaries and docs, answers study questions and handles CSV, JSON and logs.</span></div></li>
+    <li><b>?</b><div><strong>What does it cost?</strong><span>Nothing. litecode is MIT licensed and the models are open-weight. <a href="faq.html">More answers</a>.</span></div></li>
   </ul>
 </div></section>
 
 <section id="install"><div class="wrap">
   <span class="label">Install</span>
   <h2>Three commands</h2>
-  <p class="sub">Needs Python 3.10 or newer. The setup wizard downloads the engine and the models that fit your PC, after it asks.</p>
+  <p class="sub">Needs Python 3.10 or newer. The setup wizard downloads the engine and the models that fit your machine, after it asks.</p>
   <div class="install">
     <div class="code"><span class="label">Windows · PowerShell</span><button class="copy" type="button">copy</button><pre>git clone https://github.com/konkomaji/litecode
 cd litecode
@@ -257,14 +166,14 @@ cd litecode
 cd litecode
 ./install.sh</pre></div>
   </div>
-  <p class="sub" style="margin-top:20px">Then: <code>litecode tune</code> once, and <code>litecode</code> in any project folder. Read the <a href="https://github.com/konkomaji/litecode/blob/main/docs/GUIDE.md">full guide</a>.</p>
+  <p class="sub" style="margin-top:20px">Then run <code>litecode tune</code> once, and <code>litecode</code> in any project folder. Read the <a href="quickstart.html">Quickstart</a> or the full <a href="guide.html">User guide</a>.</p>
 </div></section>
 </main>
 
 <footer><div class="wrap foot">
   <div>
     <div class="credit">Built by <em>Konko Maji</em></div>
-    <p style="color:var(--ink-2);max-width:32em">litecode is free and open source (MIT). It exists so students and developers on old or cheap PCs can use AI for code, study and security work.</p>
+    <p style="color:var(--ink-2);max-width:32em">litecode is a free, open-source (MIT) AI assistant for coding and security that runs on your own computer, from a 4 GB laptop to a GPU workstation.</p>
     <p class="fine">© 2026 Konko Maji · MIT License</p>
   </div>
   <ul class="links" aria-label="Contact and links">
@@ -274,24 +183,6 @@ cd litecode
     <li><a href="https://x.com/konkomaji"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4zm-1.2 17.9h1.9L7 4.2H5z"/></svg>@konkomaji</a></li>
   </ul>
 </div></footer>
-
-<script>
-(function(){
-  var root=document.documentElement,btn=document.getElementById("theme");
-  function get(){try{return localStorage.getItem("lc-theme")}catch(e){return null}}
-  function set(v){try{localStorage.setItem("lc-theme",v)}catch(e){}}
-  var t=get(); if(t) root.setAttribute("data-theme",t);
-  btn.addEventListener("click",function(){
-    var dark=root.getAttribute("data-theme")==="dark"||(!root.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);
-    var n=dark?"light":"dark"; root.setAttribute("data-theme",n); set(n);
-  });
-  document.querySelectorAll(".copy").forEach(function(b){
-    b.addEventListener("click",function(){
-      var txt=b.parentNode.querySelector("pre").innerText;
-      if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){b.textContent="copied";setTimeout(function(){b.textContent="copy"},1500)})}
-    });
-  });
-})();
-</script>
+<script src="assets/site.js" defer></script>
 </body>
 </html>

@@ -29,6 +29,22 @@ class Env:
     vulkan: bool = False
 
     @property
+    def vram_gb(self) -> float:
+        """Total NVIDIA VRAM from nvidia-smi lines like 'RTX 3060, 12288 MiB'."""
+        import re
+        tot = 0.0
+        for g in self.gpus:
+            m = re.search(r"(\d+)\s*MiB", g)
+            if m:
+                tot += int(m.group(1)) / 1024
+        return tot
+
+    @property
+    def model_budget_gb(self) -> float:
+        """RAM budget plus 90% of VRAM: what a model plus KV cache may use."""
+        return self.ram_budget_gb + self.vram_gb * 0.9
+
+    @property
     def ram_budget_gb(self) -> float:
         # PLANNING budget: base on TOTAL ram (free swings minute to minute), keep OS headroom.
         # The RAM-cliff rule says never plan past ~60-65% of total; runtime uses ram_free_gb.
@@ -42,7 +58,8 @@ class Env:
                 f"  RAM:  {self.ram_total_gb:.0f} GB total, {self.ram_free_gb:.0f} GB free "
                 f"-> model budget ~{self.ram_budget_gb:.0f} GB\n"
                 f"  Disks:\n{d}\n"
-                f"  GPU:  {g}{' (Vulkan)' if self.vulkan else ''}")
+                f"  GPU:  {g}{' (Vulkan)' if self.vulkan else ''}"
+                + (f"  -> +{self.vram_gb:.0f} GB VRAM" if self.vram_gb else ""))
 
     def as_dict(self):
         d = asdict(self)

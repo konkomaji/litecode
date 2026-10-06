@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills - litecode docs</title>
+<meta name="description" content="Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills.">
+<meta name="author" content="Konko Maji">
+<link rel="canonical" href="https://konkomaji.github.io/litecode/skills.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="litecode">
+<meta property="og:title" content="Skills - litecode docs">
+<meta property="og:description" content="Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills.">
+<meta property="og:url" content="https://konkomaji.github.io/litecode/skills.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@konkomaji">
+<meta name="theme-color" content="#d4600a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "Skills", "description": "Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills.", "author": {"@type": "Person", "name": "Konko Maji", "email": "mailto:work.konkomaji@gmail.com", "url": "https://www.linkedin.com/in/konkomaji/", "sameAs": ["https://www.linkedin.com/in/konkomaji/", "https://x.com/konkomaji", "https://github.com/konkomaji"]}, "url": "https://konkomaji.github.io/litecode/skills.html", "isPartOf": {"@type": "WebSite", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}, "about": {"@type": "SoftwareApplication", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "litecode", "item": "https://konkomaji.github.io/litecode/"}, {"@type": "ListItem", "position": 2, "name": "Use litecode", "item": "https://konkomaji.github.io/litecode/skills.html"}, {"@type": "ListItem", "position": 3, "name": "Skills", "item": "https://konkomaji.github.io/litecode/skills.html"}]}]}</script>
+</head>
+<body>
+<a class="sr" href="#main">Skip to content</a>
+<header class="top"><div class="wrap"><a class="logo" href="./"><b>&gt;_</b>litecode</a><nav aria-label="Main"><a href="quickstart.html" aria-current="page">Docs</a><a href="benchmarks.html">Benchmarks</a><a href="faq.html">FAQ</a><a href="https://github.com/konkomaji/litecode">GitHub</a></nav><button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header><div class="wrap docs"><aside><button class="menu-btn" type="button" aria-expanded="false">Menu: all docs pages</button><nav class="side" aria-label="Documentation"><h4>Get started</h4><a href="quickstart.html">Quickstart</a><a href="guide.html">User guide</a><a href="hardware.html">Hardware and models</a><a href="use-cases.html">Use cases</a><h4>Use litecode</h4><a href="commands.html">Commands</a><a href="security.html">Security review</a><a href="memory.html">Memory and learning</a><a href="skills.html" aria-current="page">Skills</a><a href="mcp.html">MCP servers</a><a href="editors.html">Editor autocomplete</a><h4>Results</h4><a href="benchmarks.html">Benchmarks</a><h4>Help</h4><a href="faq.html">FAQ</a><a href="troubleshooting.html">Troubleshooting</a><h4>Project</h4><a href="roadmap.html">Ideas and roadmap</a></nav></aside><main id="main" class="prose"><div class="crumb">Use litecode</div><h1>Skills</h1>
+<p>A skill is a saved set of steps for one kind of task. litecode adds the steps to the prompt when the skill runs. Small models follow short numbered steps well.</p>
+<h2 id="use-a-skill">Use a skill<a class="anchor" href="#use-a-skill" aria-label="Link to this section">#</a></h2>
+<ul><li><code>/NAME TASK</code> runs a skill. Example: <code>/review src/api/</code>.</li><li>A skill also runs automatically when its trigger words appear in your message. Max 2 skills per task.</li><li><code>/skills</code> lists all skills with their scope.</li></ul>
+<h2 id="built-in-skills">Built-in skills<a class="anchor" href="#built-in-skills" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Skill</th><th>Use</th></tr></thead><tbody><tr><td><code>review</code></td><td>security review: scan, confirm, fix</td></tr><tr><td><code>test-fix</code></td><td>run tests, fix failures, repeat</td></tr><tr><td><code>explain</code></td><td>explain code in simple steps</td></tr><tr><td><code>commit</code></td><td>commit message from the diff</td></tr><tr><td><code>refactor</code></td><td>change structure, keep behavior, run tests</td></tr><tr><td><code>skill-builder</code></td><td>design a new skill with the model's help</td></tr></tbody></table>
+<h2 id="make-a-skill">Make a skill<a class="anchor" href="#make-a-skill" aria-label="Link to this section">#</a></h2>
+<p>Option 1, step by step:</p>
+<pre><code>/skill new django-migrations</code></pre>
+<p>litecode asks for a description, trigger words, and the steps.</p>
+<p>Option 2, the model drafts it:</p>
+<pre><code>/skill make a skill that checks Django migrations for missing indexes</code></pre>
+<p>litecode shows the draft. You confirm before it saves.</p>
+<p>Option 3, write the file yourself. Create <code>.litecode/skills/&lt;name&gt;/SKILL.md</code>:</p>
+<pre><code>---
+name: django-migrations
+description: Check new Django migrations for missing indexes and data loss.
+triggers: migration, migrations, django
+tools: glob, read_file, grep
+---
+1. Find new files with glob &quot;**/migrations/*.py&quot;.
+2. Read each new migration.
+3. Flag RemoveField and DeleteModel. They lose data.
+4. Flag ForeignKey fields without db_index on large tables.
+5. In final, list each problem as file:line and a fix.</code></pre>
+<p>Rules for the file:</p>
+<ul><li><code>name</code>: 2-41 characters. Lowercase letters, digits, <code>-</code>, <code>_</code>.</li><li><code>description</code>: one sentence.</li><li><code>triggers</code>: comma separated words (optional).</li><li><code>tools</code>: tools the steps use (optional, for the reader).</li><li>Body: 3-8 numbered steps. Use simple words. Name the tools.</li></ul>
+<h2 id="scope">Scope<a class="anchor" href="#scope" aria-label="Link to this section">#</a></h2>
+<table><thead><tr><th>Scope</th><th>Folder</th><th>Who sees it</th></tr></thead><tbody><tr><td>project</td><td><code>&lt;project&gt;/.litecode/skills/</code></td><td>this project; commit it to share with your team</td></tr><tr><td>user</td><td><code>&lt;data_dir&gt;/skills/</code></td><td>all your projects</td></tr><tr><td>builtin</td><td>shipped with litecode</td><td>everyone</td></tr></tbody></table>
+<p>On a name clash, project wins over user, and user wins over builtin.</p>
+<p>Delete: <code>/skill rm NAME</code>. Built-in skills cannot be deleted. Override one with a project skill of the same name.</p>
+<div class="pager"><a href="memory.html"><span>Previous</span><b>Memory and learning</b></a><a class="next" href="mcp.html"><span>Next</span><b>MCP servers</b></a></div><p class="edit">Source: <a href="https://github.com/konkomaji/litecode/blob/main/docs/SKILLS.md">docs/SKILLS.md</a></p></main><nav class="toc" aria-label="On this page"><div class="label">On this page</div><a class="l2" href="#use-a-skill">Use a skill</a><a class="l2" href="#built-in-skills">Built-in skills</a><a class="l2" href="#make-a-skill">Make a skill</a><a class="l2" href="#scope">Scope</a></nav></div><footer><div class="wrap foot"><div><div class="credit">Built by <em>Konko Maji</em></div><p style="color:var(--ink-2);max-width:32em">litecode is a free, open-source (MIT) AI assistant for coding and security that runs on your own computer, from a 4 GB laptop to a GPU workstation.</p><p class="fine">© 2026 Konko Maji · MIT License</p></div><ul class="links" aria-label="Contact and links"><li><a href="mailto:work.konkomaji@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v14H2zm2 2v.4l8 5.2 8-5.2V7zm16 2.8-8 5.2-8-5.2V17h16z"/></svg>work.konkomaji@gmail.com</a></li><li><a href="https://github.com/konkomaji/litecode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>github.com/konkomaji/litecode</a></li><li><a href="https://www.linkedin.com/in/konkomaji/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/></svg>linkedin.com/in/konkomaji</a></li><li><a href="https://x.com/konkomaji"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4zm-1.2 17.9h1.9L7 4.2H5z"/></svg>@konkomaji</a></li></ul></div></footer><script src="assets/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP servers - litecode docs</title>
+<meta name="description" content="Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code.">
+<meta name="author" content="Konko Maji">
+<link rel="canonical" href="https://konkomaji.github.io/litecode/mcp.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="litecode">
+<meta property="og:title" content="MCP servers - litecode docs">
+<meta property="og:description" content="Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code.">
+<meta property="og:url" content="https://konkomaji.github.io/litecode/mcp.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@konkomaji">
+<meta name="theme-color" content="#d4600a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "MCP servers", "description": "Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code.", "author": {"@type": "Person", "name": "Konko Maji", "email": "mailto:work.konkomaji@gmail.com", "url": "https://www.linkedin.com/in/konkomaji/", "sameAs": ["https://www.linkedin.com/in/konkomaji/", "https://x.com/konkomaji", "https://github.com/konkomaji"]}, "url": "https://konkomaji.github.io/litecode/mcp.html", "isPartOf": {"@type": "WebSite", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}, "about": {"@type": "SoftwareApplication", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "litecode", "item": "https://konkomaji.github.io/litecode/"}, {"@type": "ListItem", "position": 2, "name": "Use litecode", "item": "https://konkomaji.github.io/litecode/mcp.html"}, {"@type": "ListItem", "position": 3, "name": "MCP servers", "item": "https://konkomaji.github.io/litecode/mcp.html"}]}]}</script>
+</head>
+<body>
+<a class="sr" href="#main">Skip to content</a>
+<header class="top"><div class="wrap"><a class="logo" href="./"><b>&gt;_</b>litecode</a><nav aria-label="Main"><a href="quickstart.html" aria-current="page">Docs</a><a href="benchmarks.html">Benchmarks</a><a href="faq.html">FAQ</a><a href="https://github.com/konkomaji/litecode">GitHub</a></nav><button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header><div class="wrap docs"><aside><button class="menu-btn" type="button" aria-expanded="false">Menu: all docs pages</button><nav class="side" aria-label="Documentation"><h4>Get started</h4><a href="quickstart.html">Quickstart</a><a href="guide.html">User guide</a><a href="hardware.html">Hardware and models</a><a href="use-cases.html">Use cases</a><h4>Use litecode</h4><a href="commands.html">Commands</a><a href="security.html">Security review</a><a href="memory.html">Memory and learning</a><a href="skills.html">Skills</a><a href="mcp.html" aria-current="page">MCP servers</a><a href="editors.html">Editor autocomplete</a><h4>Results</h4><a href="benchmarks.html">Benchmarks</a><h4>Help</h4><a href="faq.html">FAQ</a><a href="troubleshooting.html">Troubleshooting</a><h4>Project</h4><a href="roadmap.html">Ideas and roadmap</a></nav></aside><main id="main" class="prose"><div class="crumb">Use litecode</div><h1>MCP servers</h1>
+<p>litecode is an MCP client. It starts MCP servers over stdio and gives their tools to the model. It reads the same <code>mcpServers</code> format as Claude Code.</p>
+<h2 id="add-a-server">Add a server<a class="anchor" href="#add-a-server" aria-label="Link to this section">#</a></h2>
+<p>Command line:</p>
+<pre><code>litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
+litecode mcp add git uvx mcp-server-git
+litecode mcp                 # list servers
+litecode mcp --tools         # start them and list their tools
+litecode mcp rm fs</code></pre>
+<p>Or edit a config file:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;fs&quot;: {&quot;command&quot;: &quot;npx&quot;, &quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;.&quot;]},
+    &quot;notes&quot;: {&quot;command&quot;: &quot;python&quot;, &quot;args&quot;: [&quot;notes_server.py&quot;], &quot;env&quot;: {&quot;NOTES_DIR&quot;: &quot;D:/notes&quot;}},
+    &quot;off&quot;: {&quot;command&quot;: &quot;x&quot;, &quot;disabled&quot;: true}
+  }
+}</code></pre>
+<p>Config files (later wins on a name clash):</p>
+<ol><li><code>&lt;data_dir&gt;/mcp.json</code> (user, written by <code>litecode mcp add</code>)</li><li><code>&lt;project&gt;/.mcp.json</code> (project, same file Claude Code uses)</li><li><code>&lt;project&gt;/.litecode/mcp.json</code></li></ol>
+<h2 id="how-the-model-calls-a-tool">How the model calls a tool<a class="anchor" href="#how-the-model-calls-a-tool" aria-label="Link to this section">#</a></h2>
+<p>Tools appear as <code>mcp__&lt;server&gt;__&lt;tool&gt;</code>. The model uses the normal JSON format:</p>
+<pre><code>{&quot;tool&quot;: &quot;mcp__fs__read_file&quot;, &quot;args&quot;: {&quot;path&quot;: &quot;README.md&quot;}}</code></pre>
+<p>Each MCP call asks for approval in <code>ask</code> mode. In <code>readonly</code> mode MCP calls are refused.</p>
+<h2 id="limits">Limits<a class="anchor" href="#limits" aria-label="Link to this section">#</a></h2>
+<ul><li>Transport: stdio only. HTTP/SSE servers are not supported yet.</li><li>Tools only. MCP resources and prompts are not used yet.</li><li>litecode shows the model at most 20 MCP tools. Small models choose badly from long lists. Add only what you need.</li><li>A server that fails to start is skipped. litecode prints the error and continues.</li><li>Most MCP servers need Node.js (<code>npx</code>) or <code>uv</code> (<code>uvx</code>). Install those first. Offline use needs the server installed locally.</li></ul>
+<div class="pager"><a href="skills.html"><span>Previous</span><b>Skills</b></a><a class="next" href="editors.html"><span>Next</span><b>Editor autocomplete</b></a></div><p class="edit">Source: <a href="https://github.com/konkomaji/litecode/blob/main/docs/MCP.md">docs/MCP.md</a></p></main><nav class="toc" aria-label="On this page"><div class="label">On this page</div><a class="l2" href="#add-a-server">Add a server</a><a class="l2" href="#how-the-model-calls-a-tool">How the model calls a tool</a><a class="l2" href="#limits">Limits</a></nav></div><footer><div class="wrap foot"><div><div class="credit">Built by <em>Konko Maji</em></div><p style="color:var(--ink-2);max-width:32em">litecode is a free, open-source (MIT) AI assistant for coding and security that runs on your own computer, from a 4 GB laptop to a GPU workstation.</p><p class="fine">© 2026 Konko Maji · MIT License</p></div><ul class="links" aria-label="Contact and links"><li><a href="mailto:work.konkomaji@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h20v14H2zm2 2v.4l8 5.2 8-5.2V7zm16 2.8-8 5.2-8-5.2V17h16z"/></svg>work.konkomaji@gmail.com</a></li><li><a href="https://github.com/konkomaji/litecode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>github.com/konkomaji/litecode</a></li><li><a href="https://www.linkedin.com/in/konkomaji/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/></svg>linkedin.com/in/konkomaji</a></li><li><a href="https://x.com/konkomaji"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4zm-1.2 17.9h1.9L7 4.2H5z"/></svg>@konkomaji</a></li></ul></div></footer><script src="assets/site.js" defer></script>
+</body>
+</html>

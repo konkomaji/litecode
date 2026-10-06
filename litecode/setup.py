@@ -61,6 +61,11 @@ def pick_engine_asset(assets: list[dict], system: str, machine: str, gpu: str = 
     """Choose the llama.cpp release archive for this OS/CPU. gpu: cpu | vulkan."""
     names = {a["name"].lower(): a for a in assets}
     arm = machine.lower() in ("arm64", "aarch64")
+    if system == "Windows" and gpu == "cuda":
+        for n, a in sorted(names.items(), reverse=True):   # newest CUDA version first
+            if n.startswith("llama-") and "bin-win-cuda" in n and n.endswith(".zip"):
+                return a
+        gpu = "vulkan"
     if system == "Windows":
         prefs = [f"bin-win-{gpu}-{'arm64' if arm else 'x64'}", "bin-win-cpu-x64"]
     elif system == "Darwin":
@@ -79,6 +84,13 @@ def _find_server(root: Path) -> Path | None:
     exe = "llama-server.exe" if os.name == "nt" else "llama-server"
     hits = sorted(root.rglob(exe), key=lambda p: len(p.parts))
     return hits[0] if hits else None
+
+
+def cuda_runtime_asset(assets: list[dict]) -> dict | None:
+    """Windows CUDA builds need the matching cudart archive next to the binaries."""
+    c = sorted((a for a in assets if a["name"].lower().startswith("cudart-") and a["name"].endswith(".zip")),
+               key=lambda a: a["name"], reverse=True)
+    return c[0] if c else None
 
 
 def install_engine(dest_dir: Path, gpu: str = "cpu") -> Path:
@@ -100,6 +112,15 @@ def install_engine(dest_dir: Path, gpu: str = "cpu") -> Path:
         with tarfile.open(arch) as t:
             t.extractall(dest_dir)
     arch.unlink()
+    if gpu == "cuda" and platform.system() == "Windows":
+        rt = cuda_runtime_asset(rel.get("assets", []))
+        if rt:
+            rta = dest_dir / rt["name"]
+            _download(rt["browser_download_url"], rta)
+            srv0 = _find_server(dest_dir)
+            with zipfile.ZipFile(rta) as z:
+                z.extractall(srv0.parent if srv0 else dest_dir)
+            rta.unlink()
     srv = _find_server(dest_dir)
     if not srv:
         raise RuntimeError("engine archive had no llama-server")
@@ -138,7 +159,13 @@ def run():
             engine = Path(found)
             print(f"\n  engine found on PATH: {engine}")
         elif _ask("\nDownload the llama.cpp engine (about 30-80 MB)?", "y"):
-            gpu = "vulkan" if env.vulkan and _ask("  Vulkan GPU found. Use the Vulkan build?", "n") else "cpu"
+            gpu = "cpu"
+            if env.gpus and _ask(f"  NVIDIA GPU found ({env.gpus[0]}). Use the CUDA build?", "y"):
+                gpu = "cuda"
+            elif env.vulkan and _ask("  Vulkan GPU found. Use the Vulkan build?", "n"):
+                gpu = "vulkan"
+            if gpu != "cpu":
+                updates["gpu_layers"] = 99
             try:
                 engine = install_engine(Path(data_dir) / "engine", gpu)
             except Exception as e:
@@ -150,9 +177,9 @@ def run():
     updates["threads"] = env.cores or cfg["threads"]
 
     # 3. models
-    budget = env.ram_budget_gb
+    budget = env.model_budget_gb
     want_sec = _ask("\nInstall a security-permissive model for authorized pentest / CTF work?", "y")
-    rec = catalog.recommend(budget, want_security=want_sec, has_gpu=bool(env.gpus) and env.vulkan)
+    rec = catalog.recommend(budget, want_security=want_sec, has_gpu=env.vram_gb >= 6)
     print(f"\nRecommended model set for ~{budget:.0f} GB RAM budget:\n")
     seen: dict = {}
     for role, m in rec.items():

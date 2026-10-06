@@ -1,0 +1,77 @@
+{
+ "machine": {
+  "CPU": "AMD Ryzen 3 3200G, 4 cores / 4 threads (2019)",
+  "RAM": "16 GB DDR4-2133, dual channel",
+  "GPU": "none used (GT 710 is too old)",
+  "Disk": "7200 rpm hard drive",
+  "Engine": "llama.cpp CPU build, 4 threads, Q4_K_M models"
+ },
+ "speed": [
+  {
+   "model": "Qwen3.5-0.8B",
+   "pp": "142.20",
+   "tg": "33.32",
+   "coding": "3/8",
+   "security": "9/10",
+   "tools": "1/5"
+  },
+  {
+   "model": "Qwen2.5-Coder-1.5B",
+   "pp": "65.24",
+   "tg": "19.86",
+   "coding": "4/8",
+   "security": "9/10",
+   "tools": "2/5"
+  },
+  {
+   "model": "MiniCPM5-2B",
+   "pp": "44.88",
+   "tg": "15.24",
+   "coding": "8/8",
+   "security": "10/10",
+   "tools": "4/5"
+  },
+  {
+   "model": "LFM2.5-8B-A1B",
+   "pp": "50.35",
+   "tg": "13.20",
+   "coding": "8/8",
+   "security": "?/10",
+   "tools": "1/5"
+  },
+  {
+   "model": "Llama-3.2-3B",
+   "pp": "33.29",
+   "tg": "11.03",
+   "coding": "6/8",
+   "security": "10/10",
+   "tools": "2/5"
+  },
+  {
+   "model": "Qwen3.5-4B",
+   "pp": "24.76",
+   "tg": "7.10",
+   "coding": "6/8",
+   "security": "10/10",
+   "tools": "4/5"
+  },
+  {
+   "model": "Gemma-4-E4B",
+   "pp": "20.71",
+   "tg": "6.79",
+   "coding": "8/8",
+   "security": "10/10",
+   "tools": "3/5"
+  },
+  {
+   "model": "Qwen3.5-9B",
+   "pp": "11.99",
+   "tg": "4.06",
+   "coding": "?/8",
+   "security": "?/10",
+   "tools": "?/5"
+  }
+ ],
+ "evals": [],
+ "notes": []
+}

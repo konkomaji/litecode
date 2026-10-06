@@ -1,0 +1,30 @@
+# litecode
+
+> litecode is a free, open-source AI assistant for coding and security that runs locally on your own computer with open-weight models (llama.cpp). It works offline, adapts to the hardware from a 4 GB laptop without GPU to a GPU workstation, and also helps with writing, study and data tasks. Built by Konko Maji.
+
+Key facts:
+- Category: local AI coding agent / offline AI coding assistant (terminal).
+- Main focus: coding and security review. Also: writing, study questions, CSV/JSON/log data.
+- Runs on CPU only; uses NVIDIA (CUDA), Vulkan or Apple Metal GPUs when present.
+- Measured on a Ryzen 3 3200G, 16 GB RAM, no GPU: MiniCPM5-2B generates 15.2 tokens/s and passed 8/8 single-function coding tasks.
+- Features: tool-using agent, automatic memory and learning, SKILL.md skills, MCP client, static security scan plus model verdicts, test-fix loop, editor autocomplete.
+- License: MIT. Python 3.10+, no Python dependencies.
+- Source: https://github.com/konkomaji/litecode
+- Contact: Konko Maji, work.konkomaji@gmail.com, https://www.linkedin.com/in/konkomaji/, https://x.com/konkomaji
+
+## Docs
+
+- [Quickstart](https://konkomaji.github.io/litecode/quickstart.html): Install litecode and run your first local AI coding task in about 10 minutes. Works on Windows, Linux and macOS, with or without a GPU.
+- [User guide](https://konkomaji.github.io/litecode/guide.html): Complete litecode guide: setup, interface, daily commands, memory, skills, MCP, security, speed tuning and file locations.
+- [Hardware and models](https://konkomaji.github.io/litecode/hardware.html): Which AI models litecode runs on your hardware, from a 4 GB laptop without GPU to a 24 GB GPU workstation.
+- [Use cases](https://konkomaji.github.io/litecode/use-cases.html): What litecode does: coding and security first, plus writing, study, and data tasks, all offline on your own PC.
+- [Commands](https://konkomaji.github.io/litecode/commands.html): Every litecode shell command, slash command and config key in one reference.
+- [Security review](https://konkomaji.github.io/litecode/security.html): Offline security review: static scan with zero model tokens, then a model verdict per finding for SQLi, XSS, command injection and more.
+- [Memory and learning](https://konkomaji.github.io/litecode/memory.html): How litecode remembers sessions, learns your preferences and project facts, and exports data for LoRA fine-tuning.
+- [Skills](https://konkomaji.github.io/litecode/skills.html): Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills.
+- [MCP servers](https://konkomaji.github.io/litecode/mcp.html): Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code.
+- [Editor autocomplete](https://konkomaji.github.io/litecode/editors.html): Local fill-in-the-middle autocomplete for VS Code and other editors with litecode fim.
+- [Benchmarks](https://konkomaji.github.io/litecode/benchmarks.html): Measured results: speed and 30 real coding, security and writing challenges for every model on a low-end Ryzen 3 PC.
+- [FAQ](https://konkomaji.github.io/litecode/faq.html): Answers to common questions: running AI coding without a GPU, RAM needs, privacy, models, and how litecode compares.
+- [Troubleshooting](https://konkomaji.github.io/litecode/troubleshooting.html): Fix common litecode problems: engine not found, slow first answer, RAM limits, Windows shell issues and more.
+- [Ideas and roadmap](https://konkomaji.github.io/litecode/roadmap.html): What comes next for litecode: grammar-locked agents, classroom pooling, offline docs packs and verified-fix sharing.

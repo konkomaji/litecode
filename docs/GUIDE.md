@@ -18,7 +18,7 @@ Contents:
 13. Customize the system prompt
 14. Uninstall
 
-Other docs: [COMMANDS.md](COMMANDS.md), [MEMORY.md](MEMORY.md), [SKILLS.md](SKILLS.md), [MCP.md](MCP.md), [EDITORS.md](EDITORS.md), [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+Other pages: [Quickstart](QUICKSTART.md), [Commands](COMMANDS.md), [Hardware and models](HARDWARE.md), [Memory and learning](MEMORY.md), [Skills](SKILLS.md), [MCP servers](MCP.md), [Security review](SECURITY.md), [Editor autocomplete](EDITORS.md), [FAQ](FAQ.md), [Troubleshooting](TROUBLESHOOTING.md).
 
 ---
 
@@ -163,7 +163,7 @@ Permission modes (`/mode`):
 | `auto` | no questions; same as `--yes` |
 | `readonly` | edits and commands are refused |
 
-All commands: [COMMANDS.md](COMMANDS.md).
+All commands: [Commands](COMMANDS.md).
 
 ## 7. Memory and learning
 
@@ -173,9 +173,9 @@ litecode records every session to disk automatically. It learns without retraini
 2. Facts: when a session ends, the model writes short project facts (commands, conventions). A test command that passes is saved at once.
 3. Examples: each finished task is stored. A similar task later gets the best past answer as an example. `/good` and `/bad` rate answers. Bad answers are never reused.
 
-You can see and edit all of it: `/memory`, `/forget`, and the files in [MEMORY.md](MEMORY.md).
+You can see and edit all of it: `/memory`, `/forget`, and the files listed in [Memory and learning](MEMORY.md).
 
-Real fine-tuning: `litecode learn export data.jsonl` writes your rated history as a training set. Train a LoRA on a GPU machine. Set `lora` in config. Details in [MEMORY.md](MEMORY.md).
+Real fine-tuning: `litecode learn export data.jsonl` writes your rated history as a training set. Train a LoRA on a GPU machine. Set `lora` in config. Details in [Memory and learning](MEMORY.md).
 
 ## 8. Skills
 
@@ -186,7 +186,7 @@ A skill is a saved instruction pack, like a Claude Code skill. Built-in skills: 
 - Let the model draft one: `/skill make a skill that checks Django migrations`.
 - List: `/skills`.
 
-Details: [SKILLS.md](SKILLS.md).
+Details: [Skills](SKILLS.md).
 
 ## 9. MCP servers
 
@@ -197,7 +197,7 @@ litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
 litecode mcp            # list servers
 ```
 
-Inside a session, `/mcp` lists the tools. Details: [MCP.md](MCP.md).
+Inside a session, `/mcp` lists the tools. Details: [MCP servers](MCP.md).
 
 Warning: small models handle few tools well. Add only the servers you need.
 
