@@ -119,17 +119,18 @@ class TestApprovalFeedback(unittest.TestCase):
 
 class TestToolLines(unittest.TestCase):
     def test_titles(self):
-        self.assertIn("Bash", ui.tool_title("run", {"cmd": "pytest -q"}))
+        self.assertIn("run", ui.tool_title("run", {"cmd": "pytest -q"}))
+        self.assertIn("pytest -q", ui.tool_title("run", {"cmd": "pytest -q"}))
         self.assertIn("calc.py", ui.tool_title("write_file", {"path": "calc.py", "content": "x"}))
-        self.assertIn('pattern: "**/*.py"', ui.tool_title("glob", {"pattern": "**/*.py"}))
+        self.assertIn("**/*.py", ui.tool_title("glob", {"pattern": "**/*.py"}))
 
     def test_results(self):
-        self.assertIn("Read", ui.tool_result("read_file", "1\ta\n2\tb")[0])
-        self.assertIn("2", ui.tool_result("read_file", "1\ta\n2\tb")[0])
-        self.assertIn("Empty folder", ui.tool_result("list_dir", "(empty)")[0])
+        self.assertEqual(ui.tool_result("read_file", "1\ta\n2\tb")[0], "2 lines")
+        self.assertIn("empty folder", ui.tool_result("list_dir", "(empty)")[0])
         r = ui.tool_result("run", "(exit 2)\nerr1\nerr2\nerr3\nerr4\nerr5\nerr6")
         self.assertIn("exit 2", r[0])
-        self.assertIn("+2 lines", r[-1])
+        self.assertIn("err1", r[0])
+        self.assertIn("+2 more lines", r[-1])
         self.assertIn("denied", ui.tool_result("write_file", "(denied by user)")[0])
 
 

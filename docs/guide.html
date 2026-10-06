@@ -14,15 +14,15 @@
 <meta property="og:url" content="https://konkomaji.github.io/litecode/guide.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@konkomaji">
-<meta name="theme-color" content="#d4600a">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#1f6fe5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1420'/%3E%3Crect x='5' y='20' width='6' height='6' rx='1' fill='%234da3ff'/%3E%3Crect x='13' y='14' width='6' height='12' rx='1' fill='%234da3ff'/%3E%3Crect x='21' y='7' width='6' height='19' rx='1' fill='%234da3ff'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/site.css">
 <script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "TechArticle", "headline": "litecode guide", "description": "Complete litecode guide: setup, interface, daily commands, memory, skills, MCP, security, speed tuning and file locations.", "author": {"@type": "Person", "name": "Konko Maji", "email": "mailto:work.konkomaji@gmail.com", "url": "https://www.linkedin.com/in/konkomaji/", "sameAs": ["https://www.linkedin.com/in/konkomaji/", "https://x.com/konkomaji", "https://github.com/konkomaji"]}, "url": "https://konkomaji.github.io/litecode/guide.html", "isPartOf": {"@type": "WebSite", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}, "about": {"@type": "SoftwareApplication", "name": "litecode", "url": "https://konkomaji.github.io/litecode/"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "litecode", "item": "https://konkomaji.github.io/litecode/"}, {"@type": "ListItem", "position": 2, "name": "Get started", "item": "https://konkomaji.github.io/litecode/guide.html"}, {"@type": "ListItem", "position": 3, "name": "litecode guide", "item": "https://konkomaji.github.io/litecode/guide.html"}]}]}</script>
 </head>
 <body>
 <a class="sr" href="#main">Skip to content</a>
-<header class="top"><div class="wrap"><a class="logo" href="./"><b>&gt;_</b>litecode</a><nav aria-label="Main"><a href="quickstart.html" aria-current="page">Docs</a><a href="benchmarks.html">Benchmarks</a><a href="faq.html">FAQ</a><a href="https://github.com/konkomaji/litecode">GitHub</a></nav><button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header><div class="wrap docs"><aside><button class="menu-btn" type="button" aria-expanded="false">Menu: all docs pages</button><nav class="side" aria-label="Documentation"><h4>Get started</h4><a href="quickstart.html">Quickstart</a><a href="guide.html" aria-current="page">User guide</a><a href="hardware.html">Hardware and models</a><a href="use-cases.html">Use cases</a><h4>Use litecode</h4><a href="commands.html">Commands</a><a href="security.html">Security review</a><a href="memory.html">Memory and learning</a><a href="skills.html">Skills</a><a href="mcp.html">MCP servers</a><a href="editors.html">Editor autocomplete</a><h4>Results</h4><a href="benchmarks.html">Benchmarks</a><h4>Help</h4><a href="faq.html">FAQ</a><a href="troubleshooting.html">Troubleshooting</a></nav></aside><main id="main" class="prose"><div class="crumb">Get started</div><h1>litecode guide</h1>
+<header class="top"><div class="wrap"><a class="logo" href="./"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>litecode</a><nav aria-label="Main"><a href="quickstart.html" aria-current="page">Docs</a><a href="benchmarks.html">Benchmarks</a><a href="faq.html">FAQ</a><a href="https://github.com/konkomaji/litecode">GitHub</a></nav><button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header><div class="wrap docs"><aside><button class="menu-btn" type="button" aria-expanded="false">Menu: all docs pages</button><nav class="side" aria-label="Documentation"><h4>Get started</h4><a href="quickstart.html">Quickstart</a><a href="guide.html" aria-current="page">User guide</a><a href="hardware.html">Hardware and models</a><a href="use-cases.html">Use cases</a><h4>Use litecode</h4><a href="commands.html">Commands</a><a href="security.html">Security review</a><a href="memory.html">Memory and learning</a><a href="skills.html">Skills</a><a href="mcp.html">MCP servers</a><a href="editors.html">Editor autocomplete</a><h4>Results</h4><a href="benchmarks.html">Benchmarks</a><h4>Help</h4><a href="faq.html">FAQ</a><a href="troubleshooting.html">Troubleshooting</a></nav></aside><main id="main" class="prose"><div class="crumb">Get started</div><h1>litecode guide</h1>
 <p>litecode is a local AI coding and security assistant. It runs open-weight models on your own PC. It works offline after setup. Built by Konko Maji.</p>
 <p>Contents:</p>
 <ol><li>Requirements</li><li>Install</li><li>Setup</li><li>First run</li><li>The interface</li><li>Daily use</li><li>Memory and learning</li><li>Skills</li><li>MCP servers</li><li>Security work</li><li>Speed tuning</li><li>Files and folders</li><li>Customize the system prompt</li><li>Uninstall</li></ol>
@@ -58,48 +58,43 @@ litecode</code></pre>
 <p>One task without the interactive screen:</p>
 <pre><code>litecode &quot;add a --json flag to main.py and update the tests&quot;</code></pre>
 <h2 id="5-the-interface">5. The interface<a class="anchor" href="#5-the-interface" aria-label="Link to this section">#</a></h2>
-<pre><code>╭────────────────────────────────────────────────────────╮
-│ ✻ Welcome to litecode  v0.2.0                          │
-│                                                        │
-│ /help for help, /status for your setup                 │
-│                                                        │
-│ cwd:   C:\code\my-project                              │
-│ model: MiniCPM5-2B-Q4_K_M · CPU 4 threads              │
-╰────────────────────────────────────────────────────────╯
+<pre><code>  ▁▂▃ litecode 0.3.0
+      Built by Konko Maji
 
-&gt; fix the failing test in @tests/test_api.py
+  dir   C:\code\my-project
+  model MiniCPM5-2B-Q4_K_M · CPU 4 threads
+  data  D:/llm/data
+
+  type a question or a task. /help lists commands. tab switches mode.
+
+› fix the failing test in @tests/test_api.py
   read the test first
-● Read(tests/test_api.py)
-  ⎿  Read 24 lines
-● Update(api.py)
-╭─ Edit file ──────────────────────────────────────────
-│   api.py
-│   - return a - b
-│   + return a + b
-│
-│ Do you want to proceed?
-│ ❯ 1. Yes
-│   2. Yes, and allow all edits this session
-│   3. No, and tell litecode what to do differently (esc)
-╰──────────────────────────────────────────────────────
-  ⎿  Updated api.py (1 replacement)
-● Bash(python -m pytest -q)
-  ⎿  exit 0
-     3 passed in 0.12s
-● The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
-  · 412 tokens · 38s · MiniCPM5-2B-Q4_K_M
-────────────────────────────────────────────────────────
-&gt;
-────────────────────────────────────────────────────────
-  ? for shortcuts · MiniCPM5-2B-Q4_K_M</code></pre>
+▸ read   tests/test_api.py
+  └ 24 lines
+▸ edit   api.py
+▲ edit a file?
+    api.py
+    - return a - b
+    + return a + b
+  └ yes
+  └ edited api.py (1 replacement)
+▸ run    python -m pytest -q
+  └ exit 0 · 3 passed in 0.12s
+◆ The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+  412 tok · 38s · MiniCPM5-2B-Q4_K_M
+
+  ask before changes · MiniCPM5-2B-Q4_K_M · my-project · tab mode  ? keys
+›</code></pre>
 <p>Line types:</p>
-<table><thead><tr><th>Mark</th><th>Meaning</th></tr></thead><tbody><tr><td>grey text</td><td>the model's short reasoning for the next step</td></tr><tr><td><code>● Name(...)</code></td><td>a tool call: Read, Write, Update, Bash, List, Search, Git, Scan</td></tr><tr><td><code>⎿</code></td><td>the result of the tool call, shortened</td></tr><tr><td>red <code>-</code> / green <code>+</code></td><td>lines removed / added by an edit</td></tr><tr><td><code>●</code> + text</td><td>the answer, streamed live</td></tr><tr><td>last line</td><td>tokens, seconds, model</td></tr></tbody></table>
-<p>While the model works, a spinner shows the time and the token count. Press Ctrl+C to stop.</p>
+<table><thead><tr><th>Mark</th><th>Meaning</th></tr></thead><tbody><tr><td><code>›</code></td><td>your message</td></tr><tr><td>grey text</td><td>the model's short reasoning for the next step</td></tr><tr><td><code>▸ verb target</code></td><td>a tool step: read, write, edit, run, list, find, search, git, scan, note</td></tr><tr><td><code>└</code></td><td>the result of the step, shortened</td></tr><tr><td><code>▲</code></td><td>a permission question</td></tr><tr><td>red <code>-</code> / green <code>+</code></td><td>lines removed / added by an edit</td></tr><tr><td><code>◆</code></td><td>the answer, streamed live</td></tr><tr><td>last line</td><td>tokens, seconds, model</td></tr></tbody></table>
+<p>While the model works, a spinner shows <code>reading</code> (the model reads the prompt) and then <code>writing</code> with the token count. Press Ctrl+C to stop.</p>
 <p>Questions and greetings ("what is a list comprehension") get a direct answer without tools, in a few seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent.</p>
+<p>Permission keys: <code>y</code> yes, <code>a</code> always for this kind of action in this session, <code>n</code> no, <code>e</code> no, and tell litecode what to do instead. Left/Right and Enter also work.</p>
 <p>Input keys:</p>
-<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td>Enter</td><td>send</td></tr><tr><td><code>\</code> then Enter</td><td>new line</td></tr><tr><td>Up / Down</td><td>message history</td></tr><tr><td>Tab</td><td>complete a <code>/command</code></td></tr><tr><td>Shift+Tab</td><td>cycle mode: ask, auto-accept, plan</td></tr><tr><td>Esc</td><td>clear the input</td></tr><tr><td>Ctrl+C</td><td>stop a task; on an empty input, press twice to exit</td></tr><tr><td><code>?</code></td><td>show shortcuts</td></tr></tbody></table>
-<p>Input prefixes: <code>@path/file</code> attaches a file, <code>!command</code> runs a shell command at once (its output becomes context), <code>#text</code> saves a project fact.</p>
-<p>Modes: <strong>ask</strong> asks before each change. <strong>auto-accept</strong> applies changes without asking. <strong>plan</strong> inspects only and writes a plan, then asks if it should carry it out. <code>/mode readonly</code> refuses all changes.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody><tr><td>Enter</td><td>send</td></tr><tr><td><code>\</code> then Enter</td><td>new line</td></tr><tr><td>Up / Down</td><td>message history</td></tr><tr><td>Tab</td><td>on an empty prompt: switch mode. After <code>/</code>: complete a command</td></tr><tr><td>Esc</td><td>clear the input</td></tr><tr><td>Ctrl+C</td><td>stop a task; on an empty prompt, press twice to quit</td></tr><tr><td><code>?</code></td><td>show keys</td></tr></tbody></table>
+<p>Input prefixes: <code>@path/file</code> attaches a file, <code>!command</code> runs a shell command at once (its output becomes context), <code>+text</code> saves a project fact.</p>
+<p>Modes: <strong>ask</strong> asks before each change. <strong>auto</strong> applies changes without asking. <strong>plan</strong> looks only and writes a plan, then asks if it should carry it out. <code>/mode readonly</code> refuses all changes.</p>
+<p>The engine writes its log to <code>&lt;data&gt;/logs/engine-8080.log</code>. If the engine stops, litecode restarts it and retries once.</p>
 <h2 id="6-daily-use">6. Daily use<a class="anchor" href="#6-daily-use" aria-label="Link to this section">#</a></h2>
 <table><thead><tr><th>Goal</th><th>Type</th></tr></thead><tbody><tr><td>Ask or change code</td><td>plain text</td></tr><tr><td>Plan first, no edits</td><td><code>/plan add caching to the API</code></td></tr><tr><td>Run tests and fix</td><td><code>/test</code> or <code>/test npm test</code></td></tr><tr><td>Security review</td><td><code>/review src/</code></td></tr><tr><td>Fast static scan only</td><td><code>/scan</code></td></tr><tr><td>Commit message</td><td><code>/commit</code></td></tr><tr><td>Undo an edit</td><td><code>/undo path/file.py</code> (repeat to step back further)</td></tr><tr><td>See token use</td><td><code>/cost</code></td></tr><tr><td>Rate the last answer</td><td><code>/good</code> or <code>/bad</code></td></tr></tbody></table>
 <p>Permission modes (<code>/mode</code>):</p>
@@ -111,11 +106,11 @@ litecode</code></pre>
 <p>You can see and edit all of it: <code>/memory</code>, <code>/forget</code>, and the files listed in <a href="memory.html">Memory and learning</a>.</p>
 <p>Real fine-tuning: <code>litecode learn export data.jsonl</code> writes your rated history as a training set. Train a LoRA on a GPU machine. Set <code>lora</code> in config. Details in <a href="memory.html">Memory and learning</a>.</p>
 <h2 id="8-skills">8. Skills<a class="anchor" href="#8-skills" aria-label="Link to this section">#</a></h2>
-<p>A skill is a saved instruction pack, like a Claude Code skill. Built-in skills: <code>review</code>, <code>test-fix</code>, <code>explain</code>, <code>commit</code>, <code>refactor</code>, <code>skill-builder</code>.</p>
+<p>A skill is a saved instruction pack. Built-in skills: <code>review</code>, <code>test-fix</code>, <code>explain</code>, <code>commit</code>, <code>refactor</code>, <code>skill-builder</code>.</p>
 <ul><li>Run one: <code>/review src/</code>, <code>/explain @utils.py</code>.</li><li>Make one step by step: <code>/skill new my-skill</code>.</li><li>Let the model draft one: <code>/skill make a skill that checks Django migrations</code>.</li><li>List: <code>/skills</code>.</li></ul>
 <p>Details: <a href="skills.html">Skills</a>.</p>
 <h2 id="9-mcp-servers">9. MCP servers<a class="anchor" href="#9-mcp-servers" aria-label="Link to this section">#</a></h2>
-<p>litecode connects to Model Context Protocol servers over stdio. It reads the same <code>.mcp.json</code> format as Claude Code.</p>
+<p>litecode connects to Model Context Protocol servers over stdio. It reads the standard <code>.mcp.json</code> format.</p>
 <pre><code>litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .
 litecode mcp            # list servers</code></pre>
 <p>Inside a session, <code>/mcp</code> lists the tools. Details: <a href="mcp.html">MCP servers</a>.</p>

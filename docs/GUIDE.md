@@ -108,56 +108,53 @@ litecode "add a --json flag to main.py and update the tests"
 ## 5. The interface
 
 ```
-╭────────────────────────────────────────────────────────╮
-│ ✻ Welcome to litecode  v0.2.0                          │
-│                                                        │
-│ /help for help, /status for your setup                 │
-│                                                        │
-│ cwd:   C:\code\my-project                              │
-│ model: MiniCPM5-2B-Q4_K_M · CPU 4 threads              │
-╰────────────────────────────────────────────────────────╯
+  ▁▂▃ litecode 0.3.0
+      Built by Konko Maji
 
-> fix the failing test in @tests/test_api.py
+  dir   C:\code\my-project
+  model MiniCPM5-2B-Q4_K_M · CPU 4 threads
+  data  D:/llm/data
+
+  type a question or a task. /help lists commands. tab switches mode.
+
+› fix the failing test in @tests/test_api.py
   read the test first
-● Read(tests/test_api.py)
-  ⎿  Read 24 lines
-● Update(api.py)
-╭─ Edit file ──────────────────────────────────────────
-│   api.py
-│   - return a - b
-│   + return a + b
-│
-│ Do you want to proceed?
-│ ❯ 1. Yes
-│   2. Yes, and allow all edits this session
-│   3. No, and tell litecode what to do differently (esc)
-╰──────────────────────────────────────────────────────
-  ⎿  Updated api.py (1 replacement)
-● Bash(python -m pytest -q)
-  ⎿  exit 0
-     3 passed in 0.12s
-● The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
-  · 412 tokens · 38s · MiniCPM5-2B-Q4_K_M
-────────────────────────────────────────────────────────
->
-────────────────────────────────────────────────────────
-  ? for shortcuts · MiniCPM5-2B-Q4_K_M
+▸ read   tests/test_api.py
+  └ 24 lines
+▸ edit   api.py
+▲ edit a file?
+    api.py
+    - return a - b
+    + return a + b
+  └ yes
+  └ edited api.py (1 replacement)
+▸ run    python -m pytest -q
+  └ exit 0 · 3 passed in 0.12s
+◆ The test failed because add() subtracted. I changed line 2 of api.py. All tests pass.
+  412 tok · 38s · MiniCPM5-2B-Q4_K_M
+
+  ask before changes · MiniCPM5-2B-Q4_K_M · my-project · tab mode  ? keys
+›
 ```
 
 Line types:
 
 | Mark | Meaning |
 |---|---|
+| `›` | your message |
 | grey text | the model's short reasoning for the next step |
-| `● Name(...)` | a tool call: Read, Write, Update, Bash, List, Search, Git, Scan |
-| `⎿` | the result of the tool call, shortened |
+| `▸ verb target` | a tool step: read, write, edit, run, list, find, search, git, scan, note |
+| `└` | the result of the step, shortened |
+| `▲` | a permission question |
 | red `-` / green `+` | lines removed / added by an edit |
-| `●` + text | the answer, streamed live |
+| `◆` | the answer, streamed live |
 | last line | tokens, seconds, model |
 
-While the model works, a spinner shows the time and the token count. Press Ctrl+C to stop.
+While the model works, a spinner shows `reading` (the model reads the prompt) and then `writing` with the token count. Press Ctrl+C to stop.
 
 Questions and greetings ("what is a list comprehension") get a direct answer without tools, in a few seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent.
+
+Permission keys: `y` yes, `a` always for this kind of action in this session, `n` no, `e` no, and tell litecode what to do instead. Left/Right and Enter also work.
 
 Input keys:
 
@@ -166,15 +163,17 @@ Input keys:
 | Enter | send |
 | `\` then Enter | new line |
 | Up / Down | message history |
-| Tab | complete a `/command` |
-| Shift+Tab | cycle mode: ask, auto-accept, plan |
+| Tab | on an empty prompt: switch mode. After `/`: complete a command |
 | Esc | clear the input |
-| Ctrl+C | stop a task; on an empty input, press twice to exit |
-| `?` | show shortcuts |
+| Ctrl+C | stop a task; on an empty prompt, press twice to quit |
+| `?` | show keys |
 
-Input prefixes: `@path/file` attaches a file, `!command` runs a shell command at once (its output becomes context), `#text` saves a project fact.
+Input prefixes: `@path/file` attaches a file, `!command` runs a shell command at once (its output becomes context), `+text` saves a project fact.
 
-Modes: **ask** asks before each change. **auto-accept** applies changes without asking. **plan** inspects only and writes a plan, then asks if it should carry it out. `/mode readonly` refuses all changes.
+Modes: **ask** asks before each change. **auto** applies changes without asking. **plan** looks only and writes a plan, then asks if it should carry it out. `/mode readonly` refuses all changes.
+
+The engine writes its log to `<data>/logs/engine-8080.log`. If the engine stops, litecode restarts it and retries once.
+
 
 ## 6. Daily use
 
@@ -214,7 +213,7 @@ Real fine-tuning: `litecode learn export data.jsonl` writes your rated history a
 
 ## 8. Skills
 
-A skill is a saved instruction pack, like a Claude Code skill. Built-in skills: `review`, `test-fix`, `explain`, `commit`, `refactor`, `skill-builder`.
+A skill is a saved instruction pack. Built-in skills: `review`, `test-fix`, `explain`, `commit`, `refactor`, `skill-builder`.
 
 - Run one: `/review src/`, `/explain @utils.py`.
 - Make one step by step: `/skill new my-skill`.
@@ -225,7 +224,7 @@ Details: [Skills](SKILLS.md).
 
 ## 9. MCP servers
 
-litecode connects to Model Context Protocol servers over stdio. It reads the same `.mcp.json` format as Claude Code.
+litecode connects to Model Context Protocol servers over stdio. It reads the standard `.mcp.json` format.
 
 ```
 litecode mcp add fs npx -y @modelcontextprotocol/server-filesystem .

@@ -13,14 +13,14 @@ command-line coding assistant, running on open-weight models and tuned to the ma
 
 ## Done (v0.2)
 
-- Interface: welcome box, bordered prompt with history, Tab completion and Shift+Tab modes, spinner, one line per tool call, arrow-key permission menu with "no, do this instead", live markdown answer.
+- Interface: colors, live streaming of the final answer, diff preview on edits, status line, "always allow" per session.
 - Tools: glob, line-range reads, exact-replace edits, git status/diff, static scan, remember.
 - Permission modes: ask, auto, read-only. Plan mode. Undo with stacked checkpoints.
 - Slash commands: /plan /review /scan /test /diff /commit /model /mode /remember /prefer /memory /forget /good /bad /undo /sessions /resume /clear /init /skills /skill /mcp /config /cost.
 - Context: @file mentions, history compaction with full archive, alternating-role message building.
 - Memory and learning: automatic session capture, global preference profile, project facts (model extraction at session end, test commands at once), example retrieval with ratings, fine-tune dataset export, LoRA adapter loading.
 - Skills: SKILL.md format, built-in/user/project scopes, trigger matching, step-by-step builder, model-drafted skills.
-- MCP: stdio client, Claude Code compatible config, tools exposed as mcp__server__tool.
+- MCP: stdio client, standard `.mcp.json` config, tools exposed as mcp__server__tool.
 - Static analysis first: built-in rules, Semgrep/Bandit when installed, grammar-constrained verdicts.
 - Test-fix loop.
 - Performance: one slot, KV cache save/restore per project, n-gram speculative decoding with automatic fallback, `litecode tune` (threads + speculative mode by measurement, shareable report).
@@ -34,7 +34,7 @@ command-line coding assistant, running on open-weight models and tuned to the ma
 - Direct chat path: greetings and general questions skip the tool agent and use a short prompt. On the reference PC a reply starts in seconds instead of 60-90 s.
 - Grammar-locked agent steps: a JSON schema per tool turns into a llama.cpp grammar, so small models cannot write broken JSON, unknown tools or missing arguments. Falls back to lenient parsing on old engines.
 - Loop guard: a repeated identical step stops the task with the last result. Broken tool JSON is never shown as an answer.
-- Claude Code style interface: welcome box, bordered prompt with history, Tab completion, Shift+Tab modes (ask, auto-accept, plan), spinner with time and tokens, one line per tool call, arrow-key permission menu with "no, do this instead", live markdown answer, `!command` and `#memory` prefixes, `/status`.
+- New litecode interface (blue, light style): rising-bars mark, one-line prompt with a status line, history, Tab to switch mode (ask, auto, plan) or complete a command, braille spinner that shows reading vs writing, `▸ verb target` tool lines with `└` results, one-line permission question (`[y] yes [a] always [n] no [e] no, say why`), `◆` streamed answer, `!command` and `+fact` prefixes, `/status`, engine log file and automatic engine restart.
 - One-line installers for Windows, Linux and macOS with a private Python environment, PATH setup, first-run setup, and `litecode update`.
 
 ## Next

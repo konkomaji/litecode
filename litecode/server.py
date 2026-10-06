@@ -95,8 +95,12 @@ class Server:
         return cmd
 
     def _start(self, path: Path, spec: str) -> bool:
-        self.proc = subprocess.Popen(self._cmd(path, spec), stdout=subprocess.DEVNULL,
-                                     stderr=subprocess.DEVNULL)
+        # engine output goes to <data>/logs/engine-<port>.log for troubleshooting (overwritten per start)
+        try:
+            self._logf = open(config.data_path(self.cfg, "logs") / f"engine-{self.port}.log", "wb")
+        except Exception:
+            self._logf = subprocess.DEVNULL
+        self.proc = subprocess.Popen(self._cmd(path, spec), stdout=self._logf, stderr=subprocess.STDOUT)
         for _ in range(240):
             if self._healthy():
                 return True
@@ -181,6 +185,17 @@ class Server:
             # older engine without schema support: fall back to lenient parsing
             self.schema_ok = False
             body.pop("json_schema")
+            return self._chat(body, on_token)
+        except (ConnectionError, urllib.error.URLError):
+            # engine dropped the connection: restart it if it died, then retry once
+            if self.path and (not self.proc or self.proc.poll() is not None or not self._healthy()):
+                role, path, spec = self.role, self.path, self.spec_active
+                self._log("engine stopped; restarting")
+                self.stop()
+                if not self._start(path, spec):
+                    raise
+                self.role, self.path, self.spec_active = role, path, spec
+            time.sleep(0.5)
             return self._chat(body, on_token)
 
     def _chat(self, body: dict, on_token) -> str:

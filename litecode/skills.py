@@ -1,4 +1,4 @@
-"""Skills: reusable instruction packs, like Claude Code skills.
+"""Skills: reusable instruction packs (SKILL.md files).
 
 A skill is a folder with a SKILL.md file:
 

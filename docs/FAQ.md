@@ -36,7 +36,7 @@ Yes, without retraining. It saves your preferences, project facts, and rated pas
 
 Yes. Coding and security are the main focus. It also writes emails, summaries, and documentation, answers study questions, and handles CSV, JSON, and log data. See [Use cases](USE-CASES.md).
 
-## Does it support MCP and skills like Claude Code?
+## Does it support MCP and skills?
 
 Yes. It reads the same `.mcp.json` format and supports `SKILL.md` skills with project, user, and built-in scopes. See [MCP servers](MCP.md) and [Skills](SKILLS.md).
 

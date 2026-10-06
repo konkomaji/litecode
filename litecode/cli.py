@@ -30,12 +30,12 @@ DOCS = Path(__file__).resolve().parent.parent / "docs"
 
 
 ZIP_URL = "https://github.com/konkomaji/litecode/archive/refs/heads/main.zip"
-MODES = ("ask", "auto", "plan")       # Shift+Tab cycles these; "readonly" is set with /mode
+MODES = ("ask", "auto", "plan")       # Tab on an empty prompt cycles these; "readonly" is set with /mode
 
 
 # ---------- events from the agent ----------
 class Printer:
-    """Turns agent events into Claude Code style output: spinner while the model
+    """Turns agent events into litecode output: spinner while the model
     works, one line per tool with a short result, and the answer streamed live."""
 
     def __init__(self):
@@ -50,7 +50,7 @@ class Printer:
     def __call__(self, kind, data):
         if kind == "model_start":
             self._end_md()
-            self.spin.start((data or {}).get("label", "Thinking"))
+            self.spin.start("")          # spinner shows "reading", then "writing" once tokens arrive
             return
         if kind == "token":
             self.spin.tokens += 1
@@ -67,7 +67,7 @@ class Printer:
                 self._end_md()
             elif not data.get("streamed"):
                 text = ui.render_md(data["text"]).replace("\n", "\n  ")
-                print(ui.G["dot"] + " " + text)
+                print(ui.blue(ui.G["ans"]) + " " + text)
             return
         self._end_md()
         if kind == "thought":
@@ -80,15 +80,15 @@ class Printer:
             else:
                 ui.print_result("", str(data))
         elif kind == "parse_retry":
-            print(ui.dim(f"  {ui.G['elbow']}  model reply was not valid, retrying"))
+            print(ui.dim(f"  {ui.G['res']} model reply was not valid, retrying"))
         elif kind == "learned":
-            print(ui.magenta(f"  {ui.G['elbow']}  remembered: {data}"))
+            print(ui.sky(f"  {ui.G['res']} remembered: {data}"))
         elif kind == "attached":
-            print(ui.dim(f"  {ui.G['elbow']}  attached {', '.join(data)}"))
+            print(ui.dim(f"  {ui.G['res']} attached {', '.join(data)}"))
         elif kind == "skill":
-            print(ui.magenta(f"{ui.G['dot']} skill /{data}"))
+            print(ui.blue(ui.G["tool"]) + " " + ui.bold("skill".ljust(6)) + f" /{data}")
         elif kind == "saved":
-            print(ui.green(f"  {ui.G['elbow']}  saved {data}"))
+            print(ui.green(f"  {ui.G['res']} saved {data}"))
 
 
 class Approver:
@@ -148,12 +148,12 @@ class Session:
             return self.srv
         if self.srv.role != role:
             name = path.stem if path else role
-            with ui.Spinner(f"Loading {name}"):
+            with ui.Spinner(f"loading {name}"):
                 if self.srv.role and self._cache_role:
                     self.srv.save_cache(self._cache_name(self._cache_role))
                 self.srv.ensure(role)
                 restored = self.srv.restore_cache(self._cache_name(role))
-            print(ui.dim(f"  {ui.G['elbow']}  {name} ready" + (" (prompt cache restored)" if restored else "")))
+            print(ui.dim(f"  {ui.G['res']} {name} loaded" + (", prompt cache restored" if restored else "")))
             self._cache_role = role
         return self.srv
 
@@ -167,16 +167,21 @@ class Session:
         cur = self.mode if self.mode in MODES else "ask"
         self.set_mode(MODES[(MODES.index(cur) + 1) % len(MODES)])
 
-    def footer(self) -> str:
-        path = config.model_path(self.cfg, self.role or "code")
-        model = ui.dim(f"  {ui.G['sep']} {path.stem}") if path else ""
-        if self.mode == "auto":
-            return ui.accent(f"  {ui.G['play']} auto-accept edits on") + ui.dim(" (shift+tab to cycle)") + model
-        if self.mode == "plan":
-            return ui.cyan(f"  {ui.G['pause']} plan mode on") + ui.dim(" (shift+tab to cycle)") + model
-        if self.mode == "readonly":
-            return ui.yellow("  read-only mode") + ui.dim(" (/mode ask to allow changes)") + model
-        return ui.dim("  ? for shortcuts") + model
+    MODE_TEXT = {"ask": "ask before changes", "auto": "auto: changes apply without asking",
+                 "plan": "plan: look only, then propose steps", "readonly": "read-only: no changes"}
+
+    def status_line(self) -> str:
+        """Dim line above the prompt: mode, model, folder, key hint."""
+        path = config.model_path(self.cfg, (self.srv.role if self.srv and self.srv.role else None)
+                                 or self.role or "code")
+        sep = ui.dim(f" {ui.G['sep']} ")
+        color = {"auto": ui.yellow, "plan": ui.sky, "readonly": ui.red}.get(self.mode, ui.blue)
+        parts = [color(self.MODE_TEXT.get(self.mode, self.mode))]
+        if path:
+            parts.append(ui.dim(path.stem))
+        parts.append(ui.dim(self.root.name or str(self.root)))
+        parts.append(ui.dim("tab mode  ? keys"))
+        return "  " + sep.join(parts)
 
     def get_agent(self):
         from .agent import Agent
@@ -226,19 +231,19 @@ class Session:
         except KeyboardInterrupt:
             self.printer.spin.stop()
             self.printer._end_md()
-            print(ui.red(f"  {ui.G['elbow']}  Interrupted"))
+            print(ui.yellow(f"  {ui.G['res']} stopped"))
             return ""
 
     def close(self):
         from . import learn
         if self.agent and self.srv and self.cfg.get("auto_learn", True):
             try:
-                with ui.Spinner("Saving what this session taught me (ctrl+c to skip)"):
+                with ui.Spinner("saving what this session taught me"):
                     saved = learn.end_of_session(self.srv, self.agent.mem, self.agent.session)
             except KeyboardInterrupt:
                 saved = []
             for f in saved:
-                print(ui.magenta(f"  {ui.G['elbow']}  learned: {f}"))
+                print(ui.sky(f"  {ui.G['res']} learned: {f}"))
         if self.srv and self._cache_role:
             self.srv.save_cache(self._cache_name(self._cache_role))
         if self.srv:
@@ -266,8 +271,8 @@ HELP = """commands:
   /config [KEY VALUE]   show or set config   /exit        quit
 input:
   @path/file            attach a file        !command     run a shell command now
-  #text                 save a project fact  \\ + Enter   new line
-  Shift+Tab             cycle mode: ask, auto-accept, plan
+  +text                 save a project fact  \\ + Enter   new line
+  Tab (empty prompt)    switch mode: ask, auto, plan
   Up/Down history   Tab complete /command   Esc clear   Ctrl+C interrupt, twice to exit"""
 
 
@@ -432,10 +437,10 @@ def _status(s):
 def _shell(s, cmd):
     """!command: run it now (the user typed it, so no approval) and keep the output as context."""
     from .tools import Tools
-    print(ui.accent(ui.G["dot"]) + " " + ui.tool_title("run", {"cmd": cmd}))
+    ui.print_tool("run", {"cmd": cmd})
     out = Tools(s.root, lambda *a: True, mode="auto").run(cmd)
     for i, ln in enumerate(out.splitlines()[:40]):
-        print(("  " + ui.dim(ui.G["elbow"]) + "  " if i == 0 else "     ") + ln)
+        print(("  " + ui.dim(ui.G["res"]) + " " if i == 0 else "    ") + ln)
     mem = _mem(s)
     sid = s.session_id or mem.new_session()
     s.session_id = sid
@@ -672,7 +677,7 @@ def main(argv=None):
 
     if not rest and not config.available_roles(cfg):
         # first run: no engine or models yet, so start the setup wizard right away
-        print(ui.accent(ui.G["star"]) + " " + ui.bold("Welcome to litecode") + "  " + ui.dim(ui.CREDIT))
+        print("  " + ui.blue(ui.G["logo"]) + " " + ui.bold("litecode") + "  " + ui.dim(ui.CREDIT))
         print("  litecode needs the llama.cpp engine and at least one model. Setup finds what fits this PC.")
         if not ui.ask("  Run setup now? [Y/n] ", "y").lower().startswith("y"):
             print("  Run `litecode setup` when ready.")
@@ -705,7 +710,7 @@ def main(argv=None):
         cmds += ["/" + sk.name for sk in s.skills.list()]
         prompt = ui.Prompt(config.data_path(cfg) / "history.jsonl", commands=set(cmds))
         while True:
-            text = prompt.read(s.footer, on_shift_tab=s.cycle_mode)
+            text = prompt.read(s.status_line, on_mode=s.cycle_mode)
             if text is None:
                 break
             text = text.strip()
@@ -721,9 +726,9 @@ def main(argv=None):
             if text.startswith("!"):
                 _shell(s, text[1:].strip())
                 continue
-            if text.startswith("#") and len(text) > 1 and not text.startswith("#!"):
-                print(ui.dim(f"  {ui.G['elbow']}  ") + ("Saved to project memory." if _mem(s).remember(text[1:].strip())
-                                                       else "Already in project memory."))
+            if text.startswith("+") and len(text) > 1:
+                print(ui.dim(f"  {ui.G['res']} ") + ("saved to project memory" if _mem(s).remember(text[1:].strip())
+                                                       else "already in project memory"))
                 continue
             g0, t0 = (s.srv.stats.gen_tokens, s.srv.stats.seconds) if s.srv else (0, 0.0)
             try:
@@ -738,7 +743,7 @@ def main(argv=None):
                 gen, secs = s.srv.stats.gen_tokens - g0, s.srv.stats.seconds - t0
                 if secs > 0 and gen:
                     path = config.model_path(cfg, s.srv.role) if s.srv.role else None
-                    print(ui.dim(f"  {ui.G['sep']} {gen} tokens {ui.G['sep']} {secs:.0f}s"
+                    print(ui.dim(f"  {gen} tok {ui.G['sep']} {secs:.0f}s"
                                  + (f" {ui.G['sep']} {path.stem}" if path else "")))
     finally:
         s.close()

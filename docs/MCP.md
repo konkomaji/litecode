@@ -1,6 +1,6 @@
 # MCP servers
 
-litecode is an MCP client. It starts MCP servers over stdio and gives their tools to the model. It reads the same `mcpServers` format as Claude Code.
+litecode is an MCP client. It starts MCP servers over stdio and gives their tools to the model. It reads the standard `mcpServers` config format that most MCP clients use.
 
 ## Add a server
 
@@ -29,7 +29,7 @@ Or edit a config file:
 Config files (later wins on a name clash):
 
 1. `<data_dir>/mcp.json` (user, written by `litecode mcp add`)
-2. `<project>/.mcp.json` (project, same file Claude Code uses)
+2. `<project>/.mcp.json` (project, shared with other MCP clients)
 3. `<project>/.litecode/mcp.json`
 
 ## How the model calls a tool

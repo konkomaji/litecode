@@ -68,17 +68,17 @@ litecode                  # interactive session in the current folder
 litecode review src/      # static scan + model verdict for each finding
 ```
 
-Inside a session: questions and greetings get a direct answer in seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent: each tool step shows as one line (`● Write(calc.py)`, `● Bash(python calc.py)`) with a short result under it, and litecode asks before it changes a file or runs a command.
+Inside a session: questions and greetings get a direct answer in seconds. Tasks ("create calc.py", "fix the bug in app.py") run the agent: each tool step shows as one line (`▸ write  calc.py`, `▸ run    python calc.py`) with a short result under it (`└ exit 0`), and litecode asks before it changes a file or runs a command.
 
-`/help` lists commands. `@file` attaches a file, `!cmd` runs a shell command, `#text` saves a project fact. Shift+Tab cycles ask, auto-accept and plan mode. Up/Down for history, Tab completes commands, Esc clears, Ctrl+C interrupts.
+`/help` lists commands. `@file` attaches a file, `!cmd` runs a shell command, `+text` saves a project fact. Tab on an empty prompt switches mode: ask, auto, plan. Up/Down for history, Tab completes commands, Esc clears, Ctrl+C interrupts.
 
 ## Features
 
 - Agent with tools: read, glob, grep, edit (exact replace with diff preview), write, run, git status/diff, static scan, remember. Permission modes: ask, auto, read-only.
 - Automatic memory: every session is saved to disk. Preferences ("always use type hints") apply to all projects. Project facts and passing test commands are saved. Past tasks are reused as examples, rated with `/good` and `/bad`.
 - Learning loop: `litecode learn export` writes a fine-tune dataset. A LoRA adapter trained elsewhere loads with one config line.
-- Skills like Claude Code: `SKILL.md` files with steps, project/user/built-in scopes, run with `/name`, auto-match by trigger words, build with `/skill new` or let the model draft one with `/skill make`.
-- MCP client: stdio MCP servers, same `.mcp.json` format as Claude Code.
+- Skills: `SKILL.md` files with steps, project/user/built-in scopes, run with `/name`, auto-match by trigger words, build with `/skill new` or let the model draft one with `/skill make`.
+- MCP client: stdio MCP servers, configured in a standard `.mcp.json` file.
 - Security: built-in rules plus Semgrep/Bandit when installed. `/review` gives a forced 4-line verdict per finding (grammar-constrained, so small models stay on format).
 - Speed for weak PCs: one server slot, quantized KV cache, prompt cache saved per project, n-gram speculative decoding, `litecode tune` picks threads and decoding mode by measurement.
 - Clear answers: the system prompt uses ASD-STE100 Simplified Technical English rules. Answer first, short sentences, exact values, no filler. Edit `SYSTEM.md` to change it.

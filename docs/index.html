@@ -16,13 +16,13 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@konkomaji">
 <meta name="twitter:creator" content="@konkomaji">
-<meta name="theme-color" content="#d4600a">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#1f6fe5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1420'/%3E%3Crect x='5' y='20' width='6' height='6' rx='1' fill='%234da3ff'/%3E%3Crect x='13' y='14' width='6' height='12' rx='1' fill='%234da3ff'/%3E%3Crect x='21' y='7' width='6' height='19' rx='1' fill='%234da3ff'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/site.css">
 <script>try{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
-{"@type":"SoftwareApplication","name":"litecode","url":"https://konkomaji.github.io/litecode/","applicationCategory":"DeveloperApplication","applicationSubCategory":"AI coding assistant","operatingSystem":"Windows, Linux, macOS","softwareVersion":"0.2.0","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"downloadUrl":"https://github.com/konkomaji/litecode","codeRepository":"https://github.com/konkomaji/litecode","description":"Open-source AI coding and security agent that runs locally with open-weight models. Adapts to the hardware, from a 4 GB laptop without GPU to a GPU workstation. Works offline. Also helps with writing, study and data tasks.","featureList":["Local tool-using coding agent","Offline security review with static scan and model verdicts","Automatic memory and learning from use","Skills (SKILL.md) and MCP client","Hardware detection and speed autotune","CPU, CUDA, Vulkan and Metal support"],"author":{"@id":"#konko"}},
+{"@type":"SoftwareApplication","name":"litecode","url":"https://konkomaji.github.io/litecode/","applicationCategory":"DeveloperApplication","applicationSubCategory":"AI coding assistant","operatingSystem":"Windows, Linux, macOS","softwareVersion":"0.3.0","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"downloadUrl":"https://github.com/konkomaji/litecode","codeRepository":"https://github.com/konkomaji/litecode","description":"Open-source AI coding and security agent that runs locally with open-weight models. Adapts to the hardware, from a 4 GB laptop without GPU to a GPU workstation. Works offline. Also helps with writing, study and data tasks.","featureList":["Local tool-using coding agent","Offline security review with static scan and model verdicts","Automatic memory and learning from use","Skills (SKILL.md) and MCP client","Hardware detection and speed autotune","CPU, CUDA, Vulkan and Metal support"],"author":{"@id":"#konko"}},
 {"@type":"Person","@id":"#konko","name":"Konko Maji","email":"mailto:work.konkomaji@gmail.com","url":"https://www.linkedin.com/in/konkomaji/","sameAs":["https://www.linkedin.com/in/konkomaji/","https://x.com/konkomaji","https://github.com/konkomaji"]},
 {"@type":"WebSite","name":"litecode","url":"https://konkomaji.github.io/litecode/","publisher":{"@id":"#konko"}}
 ]}
@@ -31,7 +31,7 @@
 <body>
 <a class="sr" href="#main">Skip to content</a>
 <header class="top"><div class="wrap">
-  <a class="logo" href="./"><b>&gt;_</b>litecode</a>
+  <a class="logo" href="./"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>litecode</a>
   <nav aria-label="Main">
     <a href="quickstart.html">Docs</a>
     <a href="benchmarks.html">Benchmarks</a>
@@ -54,19 +54,20 @@
   </div>
   <div class="term" role="img" aria-label="litecode fixes a bug: it reads the file, edits one line, runs the test, and reports the result.">
     <div class="bar"><i></i><i></i><i></i>&nbsp; litecode · ryzen 3 3200g · 16 GB · no gpu</div>
-<pre><span class="l" style="animation-delay:.2s"><span class="t-sig">litecode&gt;</span> fix the bug so python test_calc.py prints ok</span>
-<span class="l t-dim" style="animation-delay:.9s">litecode: loading MiniCPM5-2B (role=code, speculative=ngram-simple)</span>
-<span class="l" style="animation-delay:1.6s"><span class="t-cy">  &gt; read_file</span> <span class="t-dim">{"path": "calc.py"}</span></span>
-<span class="l" style="animation-delay:2.2s"><span class="t-cy">  &gt; read_file</span> <span class="t-dim">{"path": "test_calc.py"}</span></span>
-<span class="l" style="animation-delay:2.8s"><span class="t-cy">  &gt; edit_file</span> <span class="t-dim">calc.py</span></span>
-<span class="l t-bad" style="animation-delay:3.2s">    - return a - b</span>
-<span class="l t-ok" style="animation-delay:3.4s">    + return a + b</span>
-<span class="l" style="animation-delay:4s"><span class="t-cy">  &gt; run</span> <span class="t-dim">python test_calc.py</span></span>
-<span class="l t-dim" style="animation-delay:4.6s">  &lt; (exit 0) ok</span>
-<span class="l" style="animation-delay:5.2s">
-The bug was in add(). It subtracted. I changed
-line 2 to return a + b. The test passes.</span>
-<span class="l t-dim" style="animation-delay:5.8s">[code | ask | spec:ngram-simple | 14 tok/s]</span></pre>
+<pre><span class="l" style="animation-delay:.2s"><span class="t-sig">›</span> <span class="t-b">fix the bug so python test_calc.py prints ok</span></span>
+<span class="l t-dim" style="animation-delay:.9s">  └ MiniCPM5-2B loaded</span>
+<span class="l" style="animation-delay:1.6s"><span class="t-sig">▸</span> <b>read  </b> calc.py</span>
+<span class="l t-dim" style="animation-delay:1.9s">  └ 4 lines</span>
+<span class="l" style="animation-delay:2.4s"><span class="t-sig">▸</span> <b>edit  </b> calc.py</span>
+<span class="l" style="animation-delay:2.8s"><span class="t-warn">▲</span> <b>edit a file?</b></span>
+<span class="l t-bad" style="animation-delay:3.0s">    - return a - b</span>
+<span class="l t-ok" style="animation-delay:3.2s">    + return a + b</span>
+<span class="l t-ok" style="animation-delay:3.7s">  └ yes</span>
+<span class="l" style="animation-delay:4.2s"><span class="t-sig">▸</span> <b>run   </b> python test_calc.py</span>
+<span class="l" style="animation-delay:4.8s">  <span class="t-dim">└</span> <span class="t-ok">exit 0</span> <span class="t-dim">·</span> ok</span>
+<span class="l" style="animation-delay:5.4s"><span class="t-sig">◆</span> The bug was in add(). It subtracted. I changed
+  line 2 to return a + b. The test passes.</span>
+<span class="l t-dim" style="animation-delay:6s">  96 tok · 14s · MiniCPM5-2B</span></pre>
   </div>
 </div>
 
@@ -80,7 +81,7 @@ line 2 to return a + b. The test passes.</span>
     <article><h3><span>ALSO</span>Writing</h3><p>Emails, summaries, READMEs, API docs and reports in plain, short sentences that are easy to read in a second language.</p></article>
     <article><h3><span>ALSO</span>Study</h3><p>Ask about concepts, learn a codebase, practice offline. No internet and no data charges after setup.</p></article>
     <article><h3><span>ALSO</span>Data</h3><p>CSV reports, JSON config edits, log analysis. litecode writes the script and runs it to check the result.</p></article>
-    <article><h3><span>ALSO</span>Your tools</h3><p>Connect MCP servers and save your own workflows as skills. Same formats as Claude Code. <a href="use-cases.html">All use cases</a>.</p></article>
+    <article><h3><span>ALSO</span>Your tools</h3><p>Connect MCP servers and save your own workflows as skills. Works with the common <code>.mcp.json</code> and <code>SKILL.md</code> formats. <a href="use-cases.html">All use cases</a>.</p></article>
   </div>
 </div></section>
 
@@ -130,10 +131,10 @@ line 2 to return a + b. The test passes.</span>
   <h2>A full coding agent that stays on track</h2>
   <p class="sub">Small models make more mistakes, and big models cost time. litecode adds structure to both: a strict tool protocol, grammar-forced output, and tests after every change.</p>
   <div class="feat">
-    <article><h3><span>01</span>Agent with tools</h3><p>Read, search, exact edits with a diff preview, run commands, git. Modes: <code>ask</code>, <code>auto</code>, <code>readonly</code>. <code>/undo</code> any edit.</p></article>
+    <article><h3><span>01</span>Agent with tools</h3><p>Read, search, exact edits with a diff preview, run commands, git. Modes: <code>ask</code>, <code>auto</code>, <code>plan</code>, <code>readonly</code>. <code>/undo</code> any edit.</p></article>
     <article><h3><span>02</span>Memory that grows</h3><p>Every session is saved to disk. Your preferences apply to all projects. Rated answers come back as examples. <a href="memory.html">Details</a>.</p></article>
     <article><h3><span>03</span>Skills</h3><p>Save a workflow as a <code>SKILL.md</code>. Run it with <code>/name</code>. Let the model draft one with <code>/skill make</code>.</p></article>
-    <article><h3><span>04</span>MCP client</h3><p>Connect Model Context Protocol servers. Same <code>.mcp.json</code> format as Claude Code.</p></article>
+    <article><h3><span>04</span>MCP client</h3><p>Connect Model Context Protocol servers. Reads the common <code>.mcp.json</code> config format.</p></article>
     <article><h3><span>05</span>Speed on any machine</h3><p>Prompt cache saved per project, n-gram speculative decoding, GPU offload, and <code>litecode tune</code> to pick by measurement.</p></article>
     <article><h3><span>06</span>Plain answers</h3><p>Answers follow ASD-STE100 Simplified Technical English: answer first, short sentences, exact values, no filler.</p></article>
     <article><h3><span>07</span>Plan mode</h3><p><code>/plan</code> inspects without editing and gives numbered steps. You approve, then it runs them.</p></article>
@@ -156,15 +157,11 @@ line 2 to return a + b. The test passes.</span>
 
 <section id="install"><div class="wrap">
   <span class="label">Install</span>
-  <h2>Three commands</h2>
-  <p class="sub">Needs Python 3.10 or newer. The setup wizard downloads the engine and the models that fit your machine, after it asks.</p>
+  <h2>One command</h2>
+  <p class="sub">Needs Python 3.10 or newer. On Windows the installer offers to install it. litecode gets its own environment and the <code>litecode</code> command. The setup wizard then downloads the engine and the models that fit your machine, after it asks.</p>
   <div class="install">
-    <div class="code"><span class="label">Windows · PowerShell</span><button class="copy" type="button">copy</button><pre>git clone https://github.com/konkomaji/litecode
-cd litecode
-.\install.ps1</pre></div>
-    <div class="code"><span class="label">Linux · macOS</span><button class="copy" type="button">copy</button><pre>git clone https://github.com/konkomaji/litecode
-cd litecode
-./install.sh</pre></div>
+    <div class="code"><span class="label">Windows · PowerShell</span><button class="copy" type="button">copy</button><pre>irm https://raw.githubusercontent.com/konkomaji/litecode/main/install.ps1 | iex</pre></div>
+    <div class="code"><span class="label">Linux · macOS</span><button class="copy" type="button">copy</button><pre>curl -fsSL https://raw.githubusercontent.com/konkomaji/litecode/main/install.sh | sh</pre></div>
   </div>
   <p class="sub" style="margin-top:20px">Then run <code>litecode tune</code> once, and <code>litecode</code> in any project folder. Read the <a href="quickstart.html">Quickstart</a> or the full <a href="guide.html">User guide</a>.</p>
 </div></section>

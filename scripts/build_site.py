@@ -35,9 +35,9 @@ PAGES = [
     ("memory", "MEMORY.md", "Memory and learning", "Use litecode",
      "How litecode remembers sessions, learns your preferences and project facts, and exports data for LoRA fine-tuning."),
     ("skills", "SKILLS.md", "Skills", "Use litecode",
-     "Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills."),
+     "Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes."),
     ("mcp", "MCP.md", "MCP servers", "Use litecode",
-     "Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code."),
+     "Connect Model Context Protocol servers to litecode using a standard .mcp.json config file."),
     ("editors", "EDITORS.md", "Editor autocomplete", "Use litecode",
      "Local fill-in-the-middle autocomplete for VS Code and other editors with litecode fim."),
     ("benchmarks", None, "Benchmarks", "Results",
@@ -256,9 +256,7 @@ ICONS = {
     "in": '<path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/>',
     "x": '<path d="M18.2 2.3h3.4l-7.4 8.4 8.7 11.5h-6.8l-5.3-7-6.1 7H1.3l7.9-9L.9 2.3h7l4.8 6.4zm-1.2 17.9h1.9L7 4.2H5z"/>',
 }
-FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' "
-           "height='32' rx='4' fill='%231c1a15'/%3E%3Cpath d='M8 10l6 6-6 6' stroke='%23ff8a3d' stroke-width='3' "
-           "fill='none'/%3E%3Cpath d='M16 22h8' stroke='%23ebe5d5' stroke-width='3'/%3E%3C/svg%3E")
+FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1420'/%3E%3Crect x='5' y='20' width='6' height='6' rx='1' fill='%234da3ff'/%3E%3Crect x='13' y='14' width='6' height='12' rx='1' fill='%234da3ff'/%3E%3Crect x='21' y='7' width='6' height='19' rx='1' fill='%234da3ff'/%3E%3C/svg%3E")
 
 
 def header(active=""):
@@ -266,7 +264,7 @@ def header(active=""):
            ("faq.html", "FAQ", "faq"), (REPO, "GitHub", "")]
     cur = ' aria-current="page"'
     links = "".join(f'<a href="{u}"{cur if a and a == active else ""}>{t}</a>' for u, t, a in nav)
-    return (f'<header class="top"><div class="wrap"><a class="logo" href="./"><b>&gt;_</b>litecode</a>'
+    return (f'<header class="top"><div class="wrap"><a class="logo" href="./"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>litecode</a>'
             f'<nav aria-label="Main">{links}</nav>'
             f'<button class="theme" id="theme" type="button" aria-label="Switch color theme">theme</button></div></header>')
 
@@ -302,7 +300,7 @@ def head(title, desc, slug, jsonld):
 <meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:site" content="@konkomaji">
-<meta name="theme-color" content="#d4600a">
+<meta name="theme-color" content="#1f6fe5">
 <link rel="icon" href="{FAVICON}">
 <link rel="stylesheet" href="assets/site.css">
 <script>try{{var t=localStorage.getItem("lc-theme");if(t)document.documentElement.setAttribute("data-theme",t)}}catch(e){{}}</script>

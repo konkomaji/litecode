@@ -1,5 +1,8 @@
-"""Terminal interface: welcome box, bordered prompt with a line editor, spinner,
-tool lines, permission menu, and live markdown streaming.
+"""litecode terminal interface.
+
+Look: blue, light ("feather") style. A rising-bars mark, a single-line prompt
+with a status line above it, braille spinner, one line per tool step, and a
+one-line permission question.
 
 Stdlib only. Colors turn off with NO_COLOR=1 or when output is not a terminal.
 Unicode glyphs fall back to ASCII when the console cannot print them.
@@ -41,14 +44,12 @@ def _can(s: str) -> bool:
         return False
 
 
-UNI = _can("●⎿✻╭╮╰╯│─❯⏵⏸↓·✢✳✶✽…↵")
-G = ({"dot": "●", "elbow": "⎿", "star": "✻", "tl": "╭", "tr": "╮", "bl": "╰", "br": "╯", "v": "│", "h": "─",
-      "ptr": "❯", "play": "⏵⏵", "pause": "⏸", "down": "↓", "sep": "·", "ell": "…", "nl": "↵",
-      "spin": "·✢✳✶✻✽✻✶✳✢"}
+UNI = _can("▁▂▃▸└◆▲›·…↵⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
+G = ({"logo": "▁▂▃", "tool": "▸", "res": "└", "ans": "◆", "warn": "▲", "prompt": "›", "sep": "·",
+      "ell": "…", "nl": "↵", "spin": "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"}
      if UNI else
-     {"dot": "*", "elbow": "L", "star": "*", "tl": "+", "tr": "+", "bl": "+", "br": "+", "v": "|", "h": "-",
-      "ptr": ">", "play": ">>", "pause": "||", "down": "v", "sep": "-", "ell": "...", "nl": "\\n",
-      "spin": "|/-\\"})
+     {"logo": "_-=", "tool": ">", "res": "`-", "ans": "*", "warn": "!", "prompt": ">", "sep": "|",
+      "ell": "...", "nl": "\\n", "spin": "|/-\\"})
 
 OUT = threading.Lock()   # one writer at a time (spinner thread vs main thread)
 
@@ -65,7 +66,9 @@ green = lambda t: c(t, "32")
 yellow = lambda t: c(t, "33")
 red = lambda t: c(t, "31")
 magenta = lambda t: c(t, "35")
-accent = lambda t: c(t, "38;5;209")      # warm orange, used for the brand and spinner
+blue = lambda t: c(t, "38;5;33")          # litecode brand blue
+sky = lambda t: c(t, "38;5;75")           # lighter blue for secondary marks
+accent = blue
 grey = lambda t: c(t, "38;5;245")
 
 
@@ -91,42 +94,27 @@ def clip(s: str, n: int) -> str:
     return s if len(plain) <= n else plain[:max(0, n - 1)] + G["ell"][:1]
 
 
-# ---------- welcome ----------
+# ---------- header ----------
 def welcome(version: str, cwd: str, model: str, mode: str, data_dir: str, engine: str = ""):
-    w = min(width() - 2, 72)
-    inner = w - 4
-
-    def row(text=""):
-        pad = inner - vlen(text)
-        return accent(G["v"]) + " " + text + " " * max(0, pad) + " " + accent(G["v"])
-    lines = [accent(G["tl"] + G["h"] * (w - 2) + G["tr"]),
-             row(accent(G["star"]) + " " + bold("Welcome to litecode") + dim(f"  v{version}")),
-             row(),
-             row(dim("/help for help, /status for your setup")),
-             row(),
-             row(dim("cwd:   ") + clip(cwd, inner - 7)),
-             row(dim("model: ") + clip(model + (f" {G['sep']} {engine}" if engine else ""), inner - 7)),
-             row(dim("data:  ") + clip(data_dir, inner - 7)),
-             accent(G["bl"] + G["h"] * (w - 2) + G["br"])]
-    print("\n".join(lines))
-    print(" " + dim(CREDIT))
+    w = width() - 10
     print()
-    print(dim(" Tips for getting started:"))
-    print(dim(" 1. Ask a question, or ask litecode to create, fix, or explain code"))
-    print(dim(" 2. Use @file to attach a file, !cmd to run a shell command, # to save a memory"))
-    print(dim(" 3. Shift+Tab switches mode: ask " + G["sep"] + " auto-accept " + G["sep"] + " plan"))
+    print("  " + blue(G["logo"]) + " " + bold("litecode") + " " + dim(version))
+    print("  " + " " * len(G["logo"]) + " " + dim(CREDIT))
     print()
+    print("  " + dim("dir   ") + clip(cwd, w))
+    print("  " + dim("model ") + clip(model + (f" {G['sep']} {engine}" if engine else ""), w))
+    print("  " + dim("data  ") + clip(data_dir, w))
+    print()
+    print("  " + dim("type a question or a task. /help lists commands. tab switches mode."))
 
 
 def banner(version: str, project: str, roles: list[str], mode: str, data_dir: str):
-    """Old name kept for callers; shows the welcome box."""
+    """Old name kept for callers."""
     welcome(version, project, ", ".join(roles), mode, data_dir)
 
 
 def status(role: str, mode: str, stats, spec: str = "none"):
-    tps = stats.gen_tokens / stats.seconds if stats.seconds else 0
-    print(dim(f"  {stats.gen_tokens} tokens {G['sep']} {tps:.1f} tok/s {G['sep']} {stats.seconds:.0f}s "
-              f"{G['sep']} {role}"))
+    print(dim(f"  {stats.gen_tokens} tok {G['sep']} {stats.seconds:.0f}s {G['sep']} {role}"))
 
 
 def rule(label: str = ""):
@@ -141,12 +129,12 @@ def md_line(ln: str, in_code: bool) -> tuple[str, bool]:
     if not COLOR:
         return ln, in_code
     if in_code:
-        return c(ln, "36"), True
+        return sky(ln), True
     if re.match(r"^#{1,6} ", ln):
-        return bold(re.sub(r"^#{1,6} ", "", ln)), False
+        return bold(blue(re.sub(r"^#{1,6} ", "", ln))), False
     ln = re.sub(r"\*\*([^*]+)\*\*", lambda m: bold(m.group(1)), ln)
-    ln = re.sub(r"`([^`]+)`", lambda m: c(m.group(1), "36"), ln)
-    ln = re.sub(r"^(\s*)([-*]|\d+\.) ", lambda m: m.group(1) + accent(m.group(2)) + " ", ln)
+    ln = re.sub(r"`([^`]+)`", lambda m: sky(m.group(1)), ln)
+    ln = re.sub(r"^(\s*)([-*]|\d+\.) ", lambda m: m.group(1) + blue(m.group(2)) + " ", ln)
     return ln, False
 
 
@@ -159,8 +147,8 @@ def render_md(text: str) -> str:
 
 
 class MdStream:
-    """Print streamed answer text as Claude Code does: a dot, then indented lines.
-    Each finished line is re-drawn with markdown styling (if it fits on one row)."""
+    """Print the streamed answer: a diamond mark, then indented lines. Each finished
+    line is re-drawn with markdown styling when it fits on one terminal row."""
 
     def __init__(self):
         self.line = ""
@@ -168,12 +156,15 @@ class MdStream:
         self.started = False
         self.first = True
 
+    def _mark(self):
+        return blue(G["ans"]) + " "
+
     def feed(self, text: str):
         for ch in text:
             if not self.started:
                 if ch in "\r\n" or (ch == " " and not self.line):
                     continue
-                write(G["dot"] + " ")
+                write(self._mark())
                 self.started = True
             if ch == "\r":
                 continue
@@ -188,7 +179,7 @@ class MdStream:
     def _finish(self):
         styled, self.in_code = md_line(self.line, self.in_code)
         if COLOR and styled != self.line and vlen(self.line) + 3 < width():
-            write("\r\033[K" + (G["dot"] + " " if self.first else "  ") + styled)
+            write("\r\033[K" + (self._mark() if self.first else "  ") + styled)
         self.first = False
 
     def close(self):
@@ -199,9 +190,10 @@ class MdStream:
 
 # ---------- spinner ----------
 class Spinner:
-    """✻ Thinking… (12s · ↓ 340 tokens · ctrl+c to interrupt)"""
+    """⠹ reading 12s   (before the first token: the model reads the prompt)
+       ⠹ writing 15s · 140 tok"""
 
-    def __init__(self, label="Thinking"):
+    def __init__(self, label=""):
         self.label = label
         self.tokens = 0
         self._stop = threading.Event()
@@ -210,7 +202,7 @@ class Spinner:
         self.active = False
 
     def start(self, label=None):
-        if label:
+        if label is not None:
             self.label = label
         if self.active:
             return self
@@ -230,14 +222,14 @@ class Spinner:
         frames = G["spin"]
         while not self._stop.is_set():
             el = time.time() - self.t0
-            tok = f" {G['sep']} {G['down']} {self.tokens} tokens" if self.tokens else ""
-            line = (accent(frames[i % len(frames)]) + " " + accent(self.label + G["ell"]) +
-                    dim(f" ({el:.0f}s{tok} {G['sep']} ctrl+c to interrupt)"))
+            label = self.label or ("writing" if self.tokens else "reading")
+            tok = f" {G['sep']} {self.tokens} tok" if self.tokens else ""
+            line = blue(frames[i % len(frames)]) + " " + label + dim(f" {el:.0f}s{tok} {G['sep']} ctrl+c stops")
             with OUT:
                 sys.stdout.write("\r\033[K" + line if COLOR else "\r" + _ANSI.sub("", line))
                 sys.stdout.flush()
             i += 1
-            self._stop.wait(0.12)
+            self._stop.wait(0.09)
 
     def stop(self):
         if not self.active:
@@ -259,9 +251,9 @@ class Spinner:
 
 
 # ---------- tool lines ----------
-TOOL_TITLES = {"read_file": "Read", "write_file": "Write", "edit_file": "Update", "run": "Bash",
-               "list_dir": "List", "glob": "Search", "grep": "Search", "git_status": "Git",
-               "git_diff": "Git", "scan": "Scan", "remember": "Remember", "review": "Review"}
+VERBS = {"read_file": "read", "write_file": "write", "edit_file": "edit", "run": "run", "list_dir": "list",
+         "glob": "find", "grep": "search", "git_status": "git", "git_diff": "git", "scan": "scan",
+         "remember": "note", "review": "review"}
 
 
 def _short(s, n=80):
@@ -272,34 +264,33 @@ def _short(s, n=80):
 def tool_title(tool: str, args: dict) -> str:
     a = args or {}
     if tool == "read_file":
-        rng = f", lines {a.get('start', 1)}-{a['end']}" if a.get("end") else ""
-        inner = f"{a.get('path', '')}{rng}"
+        target = a.get("path", "") + (f"  {a.get('start', 1)}-{a['end']}" if a.get("end") else "")
     elif tool in ("write_file", "edit_file"):
-        inner = a.get("path", "")
+        target = a.get("path", "")
     elif tool == "run":
-        inner = _short(a.get("cmd", ""), 100)
+        target = _short(a.get("cmd", ""), 100)
     elif tool == "list_dir":
-        inner = a.get("path", ".")
+        target = a.get("path", ".")
     elif tool == "glob":
-        inner = f'pattern: "{a.get("pattern", "")}"'
+        target = a.get("pattern", "")
     elif tool == "grep":
-        inner = f'pattern: "{a.get("pattern", "")}"' + (f', glob: "{a["glob"]}"' if a.get("glob") else "")
+        target = f'"{a.get("pattern", "")}"' + (f" in {a['glob']}" if a.get("glob") else "")
     elif tool == "git_status":
-        inner = "status"
+        target = "status"
     elif tool == "git_diff":
-        inner = ("diff " + a.get("path", "")).strip()
+        target = ("diff " + a.get("path", "")).strip()
     elif tool == "scan":
-        inner = a.get("path", ".")
+        target = a.get("path", ".")
     elif tool == "remember":
-        inner = _short(a.get("text", ""), 60)
+        target = _short(a.get("text", ""), 60)
     elif tool == "review":
-        inner = a.get("finding", "")
+        target = a.get("finding", "")
     elif tool.startswith("mcp__"):
         parts = tool.split("__")
-        return bold(f"{parts[1]} - {'__'.join(parts[2:])}") + dim(" (MCP)") + f"({_short(json.dumps(a), 80)})"
+        return bold("mcp".ljust(6)) + " " + f"{parts[1]}.{'__'.join(parts[2:])} " + dim(_short(json.dumps(a), 60))
     else:
-        inner = _short(json.dumps(a, ensure_ascii=False), 80)
-    return bold(TOOL_TITLES.get(tool, tool)) + f"({inner})"
+        target = _short(json.dumps(a, ensure_ascii=False), 80)
+    return bold(VERBS.get(tool, tool).ljust(6)) + " " + target
 
 
 def tool_result(tool: str, obs: str, max_lines: int = 4) -> list[str]:
@@ -311,40 +302,39 @@ def tool_result(tool: str, obs: str, max_lines: int = 4) -> list[str]:
     lines = o.splitlines()
     if tool == "read_file":
         n = sum(1 for ln in lines if re.match(r"^\d+\t", ln))
-        return [f"Read {bold(str(n))} lines"]
+        return [f"{n} lines"]
     if tool == "list_dir":
-        return ["Empty folder"] if o == "(empty)" else [f"Listed {bold(str(len(lines)))} paths"]
+        return ["empty folder"] if o == "(empty)" else [f"{len(lines)} entries"]
     if tool == "glob":
-        return ["Found 0 files"] if o == "(no files)" else [f"Found {bold(str(len(lines)))} files"]
+        return ["no files"] if o == "(no files)" else [f"{len(lines)} files"]
     if tool == "grep":
-        return ["Found 0 matches"] if o == "(no matches)" else [f"Found {bold(str(len(lines)))} matches"]
-    if tool == "write_file":
-        return [o.replace("wrote ", "Wrote ")]
-    if tool == "edit_file":
-        return [o.replace("edited ", "Updated ")]
+        return ["no matches"] if o == "(no matches)" else [f"{len(lines)} matches"]
+    if tool in ("write_file", "edit_file"):
+        return [o]
     if tool == "run":
         m = re.match(r"\(exit (\d+)", o)
         code = int(m.group(1)) if m else 0
         body = lines[1:] if m and len(lines) > 1 else ([] if m else lines)
         head = (green if code == 0 else red)(f"exit {code}")
-        out = [head] + [dim(_short(ln, 160)) for ln in body[:max_lines]]
+        if body:
+            head += dim(f" {G['sep']} ") + _short(body[0], 140)
+        out = [head] + [dim(_short(ln, 160)) for ln in body[1:max_lines]]
         if len(body) > max_lines:
-            out.append(dim(f"{G['ell']} +{len(body) - max_lines} lines"))
+            out.append(dim(f"+{len(body) - max_lines} more lines"))
         return out
     first = [_short(ln, 160) for ln in lines[:max_lines]] or ["(no output)"]
     if len(lines) > max_lines:
-        first.append(dim(f"{G['ell']} +{len(lines) - max_lines} lines"))
+        first.append(dim(f"+{len(lines) - max_lines} more lines"))
     return first
 
 
 def print_tool(tool: str, args: dict):
-    color = green if tool not in ("run", "write_file", "edit_file") else accent
-    print(color(G["dot"]) + " " + tool_title(tool, args))
+    print(blue(G["tool"]) + " " + tool_title(tool, args))
 
 
 def print_result(tool: str, obs: str):
     for i, ln in enumerate(tool_result(tool, obs)):
-        print(("  " + dim(G["elbow"]) + "  " if i == 0 else "     ") + ln)
+        print(("  " + dim(G["res"]) + " " if i == 0 else "    ") + ln)
 
 
 # ---------- raw keys ----------
@@ -357,7 +347,7 @@ class Keys:
 
     def __enter__(self):
         if not self.win:
-            import termios
+            import termios, codecs
             fd = sys.stdin.fileno()
             self._old = termios.tcgetattr(fd)
             new = termios.tcgetattr(fd)
@@ -366,7 +356,6 @@ class Keys:
             new[6][termios.VMIN] = 1
             new[6][termios.VTIME] = 0
             termios.tcsetattr(fd, termios.TCSADRAIN, new)
-            import codecs
             self._dec = codecs.getincrementaldecoder("utf-8")("replace")
         return self
 
@@ -437,20 +426,22 @@ class Keys:
 
 
 # ---------- prompt / line editor ----------
+SHORTCUTS = (f"/ commands {G['sep']} @ file {G['sep']} ! shell {G['sep']} + remember {G['sep']} tab mode "
+             f"{G['sep']} \\ then enter: new line {G['sep']} esc clear {G['sep']} ctrl+c quit")
+
+
 class Prompt:
-    """Bordered input like Claude Code:
+    """litecode input: a dim status line, then the prompt line.
 
-        ────────────────────────────
-        > your message
-        ────────────────────────────
-          ? for shortcuts
+          ask · MiniCPM5-2B · ? keys
+        › your message
 
-    Supports history (up/down), left/right/home/end, Tab completion for slash
-    commands, Shift+Tab mode switch, Esc to clear, Ctrl+C twice to exit, and
-    multi-line paste (lines that arrive together stay in one message).
+    History (up/down), left/right/home/end, Tab on an empty line switches mode,
+    Tab after "/" completes a command, Esc clears, Ctrl+C twice quits, and lines
+    pasted together stay one message.
     """
 
-    PLACEHOLDER = 'Try "create calc.py that adds two numbers" or ask a question'
+    PLACEHOLDER = "ask a question, or describe a task"
 
     def __init__(self, history_file=None, commands=()):
         self.history_file = history_file
@@ -474,12 +465,12 @@ class Prompt:
             except Exception:
                 pass
 
-    def read(self, footer, on_shift_tab=None) -> str | None:
-        """footer(): str for the line under the box. on_shift_tab(): called on Shift+Tab.
-        Returns the message, or None to exit."""
+    def read(self, status, on_mode=None) -> str | None:
+        """status(): text for the line above the prompt. on_mode(): switch mode.
+        Returns the message, or None to quit."""
         if not (TTY and COLOR):
             try:
-                text = input("\n> ")
+                text = input("\n" + G["prompt"] + " ")
             except (EOFError, KeyboardInterrupt):
                 return None
             text = text.lstrip("﻿")
@@ -489,42 +480,37 @@ class Prompt:
             return text
         buf, cur = [], 0
         hist_i = len(self.history)
-        note = ""
+        showing_keys = False
         ctrl_c = 0
         w = width()
-        line = dim(G["h"] * (w - 1))
-        write("\n" + line + "\n\n" + line + "\n" + clip(footer(), w - 1) + "\033[2A\r")
+        write("\n" + clip(status(), w - 1) + "\n")
 
         def draw():
-            nonlocal w
             text = "".join(buf).replace("\n", G["nl"])
             pos = len("".join(buf[:cur]).replace("\n", G["nl"]))
             avail = w - 4
             start = max(0, pos - avail + 1) if pos >= avail else 0
-            shown = text[start:start + avail]
             if not buf:
-                body = dim(self.PLACEHOLDER[:avail])
-                pos, start = 0, 0
+                body, pos, start = dim(self.PLACEHOLDER[:avail]), 0, 0
             else:
-                body = shown
-            write("\r\033[K" + bold("> ") + body + "\r\033[" + str(2 + pos - start) + "C")
+                body = text[start:start + avail]
+            write("\r\033[K" + blue(G["prompt"]) + " " + body + "\r\033[" + str(2 + pos - start) + "C")
 
-        def set_footer(txt):
-            write("\033[2B\r\033[K" + clip(txt, w - 1) + "\033[2A")
+        def set_status(txt):
+            write("\r\033[1A\r\033[K" + clip(txt, w - 1) + "\n")
             draw()
 
         def finish(text):
-            write("\033[1A\r\033[J")
+            write("\r\033[K\033[1A\r\033[J")
             if text is not None:
-                shown = text.replace("\n", "\n  ")
-                write(grey("> " + shown) + "\n")
+                write(blue(G["prompt"]) + " " + bold(text.replace("\n", "\n  ")) + "\n")
         draw()
         with Keys() as keys:
             while True:
                 k = keys.get()
                 if k != "ctrl-c" and ctrl_c:
                     ctrl_c = 0
-                    set_footer(footer())
+                    set_status(status())
                 if k == "enter":
                     if keys.pending():          # pasted text: keep the newline in the message
                         buf.insert(cur, "\n")
@@ -547,7 +533,7 @@ class Prompt:
                     if ctrl_c >= 2:
                         finish(None)
                         return None
-                    set_footer(yellow("  Press Ctrl+C again to exit"))
+                    set_status(yellow("  press ctrl+c again to quit"))
                 elif k == "ctrl-d":
                     if not buf:
                         finish(None)
@@ -599,96 +585,92 @@ class Prompt:
                     buf = list(self.history[hist_i]) if hist_i < len(self.history) else []
                     cur = len(buf)
                     draw()
-                elif k == "shift-tab":
-                    if on_shift_tab:
-                        on_shift_tab()
-                    set_footer(footer())
-                elif k == "tab":
+                elif k in ("tab", "shift-tab"):
                     text = "".join(buf)
-                    if text.startswith("/") and " " not in text:
+                    if not text and on_mode:
+                        on_mode()
+                        set_status(status())
+                    elif text.startswith("/") and " " not in text:
                         hits = [x for x in self.commands if x.startswith(text)]
                         if len(hits) == 1:
                             buf = list(hits[0] + " ")
                             cur = len(buf)
-                            set_footer(footer())
+                            set_status(status())
                         elif hits:
-                            pre = os.path.commonprefix(hits)
-                            buf = list(pre)
+                            buf = list(os.path.commonprefix(hits))
                             cur = len(buf)
-                            set_footer(dim("  " + "  ".join(hits)))
+                            set_status(dim("  " + "  ".join(hits)))
                 elif k == "?" and not buf:
-                    note = "" if note else SHORTCUTS
-                    set_footer(dim(note) if note else footer())
+                    showing_keys = not showing_keys
+                    set_status(dim("  " + SHORTCUTS) if showing_keys else status())
                 elif k == "ctrl-l":
-                    write("\033[2J\033[H")
-                    write("\n" + line + "\n\n" + line + "\n" + clip(footer(), w - 1) + "\033[2A\r")
+                    write("\033[2J\033[H\n" + clip(status(), w - 1) + "\n")
                     draw()
                 elif len(k) == 1 and k.isprintable():
                     buf.insert(cur, k)
                     cur += 1
-                    if note:
-                        note = ""
-                        set_footer(footer())
+                    if showing_keys:
+                        showing_keys = False
+                        set_status(status())
                     else:
                         draw()
 
 
-SHORTCUTS = ("  / commands  @ attach file  ! shell  # remember  shift+tab mode  "
-             "\\+enter newline  esc clear  ctrl+c exit")
+# ---------- permission question ----------
+def confirm(question: str, detail: str, choices: list[tuple[str, str]]) -> str:
+    """One-line permission question:
 
+        ▲ run a command?
+          python calc.py
+          [y] yes  [a] always  [n] no  [e] no, say why
 
-# ---------- permission menu ----------
-def select(title: str, detail: str, options: list[str]) -> int:
-    """Claude Code style choice box. Returns the chosen index, or -1 for Esc."""
-    w = min(width() - 1, 100)
-    v = accent(G["v"])
-    print(accent(G["tl"] + G["h"] + " ") + bold(title) + " " + accent(G["h"] * max(2, w - vlen(title) - 4)))
+    choices: [(key, label)]. Returns the chosen key. Esc or Ctrl+C returns "n".
+    """
+    print(yellow(G["warn"]) + " " + bold(question))
     for ln in detail.splitlines()[:40]:
         s = ln.lstrip()
         styled = red(ln) if s.startswith("- ") else green(ln) if s.startswith("+ ") else ln
-        print(v + " " + clip(styled, w - 3))
-    print(v)
-    print(v + " Do you want to proceed?")
+        print("  " + clip(styled, width() - 3))
+    keys = [k for k, _ in choices]
     if not (TTY and COLOR):
-        for i, o in enumerate(options):
-            print(v + f" {i + 1}. {o}")
-        print(accent(G["bl"] + G["h"] * (w - 1)))
-        a = ask("  choice [1]: ", "1").lower()
-        m = {"y": 0, "a": 1, "n": len(options) - 1}
-        if a[:1] in m:
-            return m[a[:1]]
-        return int(a) - 1 if a.isdigit() and 0 < int(a) <= len(options) else len(options) - 1
+        a = ask("  " + "  ".join(f"[{k}] {lab}" for k, lab in choices) + ": ", "n").lower()[:1]
+        return a if a in keys else "n"
     sel = 0
 
-    def draw(first=False):
-        if not first:
-            write(f"\033[{len(options) + 1}A")
-        for i, o in enumerate(options):
-            mark = accent(G["ptr"]) if i == sel else " "
-            txt = bold(f"{i + 1}. {o}") if i == sel else f"{i + 1}. {o}"
-            write("\r\033[K" + v + f" {mark} " + txt + "\n")
-        write("\r\033[K" + accent(G["bl"] + G["h"] * (w - 1)) + "\n")
-    draw(True)
-    with Keys() as keys:
+    def draw():
+        parts = []
+        for i, (k, lab) in enumerate(choices):
+            item = f"[{k}] {lab}"
+            parts.append(c(f" {item} ", "1;38;5;231;48;5;33") if i == sel else dim("[") + bold(k) + dim("]") + f" {lab}")
+        write("\r\033[K  " + "  ".join(parts))
+    draw()
+    with Keys() as kb:
         while True:
-            k = keys.get()
-            if k == "up":
-                sel = (sel - 1) % len(options)
-            elif k == "down":
-                sel = (sel + 1) % len(options)
+            k = kb.get()
+            if k in ("left", "shift-tab"):
+                sel = (sel - 1) % len(choices)
+            elif k in ("right", "tab"):
+                sel = (sel + 1) % len(choices)
             elif k == "enter":
-                return sel
+                pick = keys[sel]
+                break
             elif k in ("esc", "ctrl-c"):
-                return -1
-            elif k.isdigit() and 0 < int(k) <= len(options):
-                sel = int(k) - 1
-                draw()
-                return sel
-            elif k.lower() == "y":
-                return 0
-            elif k.lower() == "n":
-                return len(options) - 1
+                pick = "n"
+                break
+            elif k.lower() in keys:
+                pick = k.lower()
+                break
             draw()
+    label = dict(choices)[pick]
+    write("\r\033[K  " + dim(G["res"]) + " " + (green(label) if pick in ("y", "a") else red(label)) + "\n")
+    return pick
+
+
+def select(title: str, detail: str, options: list[str]) -> int:
+    """Index-based wrapper around confirm() for older callers."""
+    keys = "123456789"[:len(options)]
+    pick = confirm(title, detail, list(zip(keys, options)))
+    return keys.index(pick) if pick in keys else -1
 
 
 # ---------- JSON field streaming ----------
@@ -769,23 +751,24 @@ def choose_dir(label: str, default: str) -> str:
 
 
 def approve_prompt(action: str, detail: str):
-    """Returns True, False, "always", or a string with the user's instruction (a "no, do this")."""
-    titles = {"run": "Bash command", "write_file": "Create file", "edit_file": "Edit file", "mcp": "MCP tool"}
+    """Returns True, False, "always", or a string with the user's instruction ("no, do this")."""
     head, _, rest = detail.partition("\n")
-    title = titles.get(action, action)
+    question = {"run": "run a command?", "write_file": "create a file?", "edit_file": "edit a file?",
+                "mcp": "call an MCP tool?"}.get(action, f"allow {action}?")
     if action == "write_file" and "(overwrite" in head:
-        title = "Overwrite file"
-    body = "  " + head + ("\n" + rest if rest else "")
-    always = {"run": "Yes, and don't ask again for commands this session",
-              "write_file": "Yes, and allow all file writes this session",
-              "edit_file": "Yes, and allow all edits this session"}.get(action, "Yes, and don't ask again this session")
-    i = select(title, body, ["Yes", always, "No, and tell litecode what to do differently (esc)"])
-    if i == 0:
+        question = "overwrite a file?"
+    always = {"run": "always for commands", "write_file": "always for writes",
+              "edit_file": "always for edits"}.get(action, "always")
+    pick = confirm(question, "  " + head + ("\n" + rest if rest else ""),
+                   [("y", "yes"), ("a", always), ("n", "no"), ("e", "no, say why")])
+    if pick == "y":
         return True
-    if i == 1:
+    if pick == "a":
         return "always"
-    fb = ask("  " + accent(G["ptr"]) + " what should litecode do instead? (Enter to just stop) ", "")
-    return fb or False
+    if pick == "e":
+        fb = ask("  " + blue(G["prompt"]) + " what should litecode do instead? ", "")
+        return fb or False
+    return False
 
 
 def pretty_args(args: dict) -> str:

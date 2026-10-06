@@ -21,8 +21,8 @@ Key facts:
 - [Commands](https://konkomaji.github.io/litecode/commands.html): Every litecode shell command, slash command and config key in one reference.
 - [Security review](https://konkomaji.github.io/litecode/security.html): Offline security review: static scan with zero model tokens, then a model verdict per finding for SQLi, XSS, command injection and more.
 - [Memory and learning](https://konkomaji.github.io/litecode/memory.html): How litecode remembers sessions, learns your preferences and project facts, and exports data for LoRA fine-tuning.
-- [Skills](https://konkomaji.github.io/litecode/skills.html): Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes, like Claude Code skills.
-- [MCP servers](https://konkomaji.github.io/litecode/mcp.html): Connect Model Context Protocol servers to litecode using the same .mcp.json format as Claude Code.
+- [Skills](https://konkomaji.github.io/litecode/skills.html): Create and run litecode skills: SKILL.md instruction packs with project, user and built-in scopes.
+- [MCP servers](https://konkomaji.github.io/litecode/mcp.html): Connect Model Context Protocol servers to litecode using a standard .mcp.json config file.
 - [Editor autocomplete](https://konkomaji.github.io/litecode/editors.html): Local fill-in-the-middle autocomplete for VS Code and other editors with litecode fim.
 - [Benchmarks](https://konkomaji.github.io/litecode/benchmarks.html): Measured results: speed and 30 real coding, security and writing challenges for every model on a low-end Ryzen 3 PC.
 - [FAQ](https://konkomaji.github.io/litecode/faq.html): Answers to common questions: running AI coding without a GPU, RAM needs, privacy, models, and how litecode compares.

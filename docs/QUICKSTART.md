@@ -52,13 +52,13 @@ litecode
 Type a question or a task:
 
 ```
-> what is a list comprehension
-> explain what @main.py does
-> add input validation to the signup function and run the tests
-> /review src/
+› what is a list comprehension
+› explain what @main.py does
+› add input validation to the signup function and run the tests
+› /review src/
 ```
 
-Questions get a direct answer. Tasks run the agent. litecode asks before it changes a file or runs a command: pick `1` (yes), `2` (yes for the rest of the session), or `3` (no, and tell it what to do instead). Shift+Tab switches to auto-accept or plan mode.
+Questions get a direct answer. Tasks run the agent. litecode asks before it changes a file or runs a command: press `y` (yes), `a` (always, for this session), `n` (no), or `e` (no, and say what to do instead). Tab on an empty prompt switches to auto or plan mode.
 
 ## 6. Next steps
 
