@@ -46,11 +46,9 @@ PAGES = [
      "Answers to common questions: running AI coding without a GPU, RAM needs, privacy, models, and how litecode compares."),
     ("troubleshooting", "TROUBLESHOOTING.md", "Troubleshooting", "Help",
      "Fix common litecode problems: engine not found, slow first answer, RAM limits, Windows shell issues and more."),
-    ("roadmap", "IDEAS.md", "Ideas and roadmap", "Project",
-     "What comes next for litecode: grammar-locked agents, classroom pooling, offline docs packs and verified-fix sharing."),
 ]
 MD2SLUG = {src: slug for slug, src, *_ in PAGES if src}
-MD2SLUG.update({"README.md": "index", "ROADMAP.md": "roadmap", "BENCHMARKS.md": "benchmarks"})
+MD2SLUG.update({"README.md": "index", "BENCHMARKS.md": "benchmarks"})
 
 
 # ---------------------------------------------------------------- markdown

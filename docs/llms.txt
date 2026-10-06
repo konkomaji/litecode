@@ -27,4 +27,3 @@ Key facts:
 - [Benchmarks](https://konkomaji.github.io/litecode/benchmarks.html): Measured results: speed and 30 real coding, security and writing challenges for every model on a low-end Ryzen 3 PC.
 - [FAQ](https://konkomaji.github.io/litecode/faq.html): Answers to common questions: running AI coding without a GPU, RAM needs, privacy, models, and how litecode compares.
 - [Troubleshooting](https://konkomaji.github.io/litecode/troubleshooting.html): Fix common litecode problems: engine not found, slow first answer, RAM limits, Windows shell issues and more.
-- [Ideas and roadmap](https://konkomaji.github.io/litecode/roadmap.html): What comes next for litecode: grammar-locked agents, classroom pooling, offline docs packs and verified-fix sharing.

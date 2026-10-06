@@ -125,8 +125,6 @@ Built by Konko Maji.
 - X: [@konkomaji](https://x.com/konkomaji)
 - Website: [konkomaji.github.io/litecode](https://konkomaji.github.io/litecode/)
 
-Ideas: [IDEAS](docs/IDEAS.md).
-
 ## License
 
 MIT. See [LICENSE](LICENSE). Built by Konko Maji.

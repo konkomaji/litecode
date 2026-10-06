@@ -32,12 +32,8 @@ command-line coding assistant, running on open-weight models and tuned to the ma
 ## Next
 
 - MCP over HTTP/SSE, MCP resources and prompts.
-- tree-sitter symbol and call-graph retrieval; embeddings for semantic search.
-- Unified diff edits across several files with one review step.
-- Draft-model speculative decoding chosen by `tune` when a matching small model is installed.
-- Integrated GPU (Vulkan) prompt processing chosen by `tune`.
-- Verified model packs per hardware tier from community `tune` reports.
-- Shared "verified fixes" packs: fixes that passed tests, exported and signed, for offline sharing between students.
-- Small classifier for routing when rules are not enough.
+- tree-sitter symbol and call-graph retrieval.
+- Multi-file diff edits with one review step.
+- Draft-model speculative decoding and GPU prompt processing chosen by `tune`.
 
 Built by Konko Maji.
